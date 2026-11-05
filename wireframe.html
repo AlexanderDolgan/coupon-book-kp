@@ -1,0 +1,413 @@
+<title>Купонная книга Wireframe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* v5 — simple flow: hero → switch «only unused» → coupon cards with the QR slider inside.
+     Lo-fi: greys, one dark primary, dashed boxes for images; green/red squares for codes. */
+  :root {
+    --bg: #e9ebf0; --paper: #ffffff; --paper-2: #f3f4f8;
+    --ink: #2b2e3a; --ink-2: #6b7085; --ink-3: #9ba0b3; --line: #d2d6e2;
+    --primary: #2b2e3a; --primary-ink: #ffffff; --dark: #1f222c; --dark-ink: #ffffff;
+    --note: #ffd666; --note-ink: #2b2e3a;
+    --ok: #52c41a; --ok-bg: #f0f8ea; --err: #e05a5a; --err-bg: #fbeeee;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161c; --paper: #1f222c; --paper-2: #272a36; --ink: #e8eaf0; --ink-2: #a4a9bb; --ink-3: #777c90;
+      --line: #363a48; --primary: #e8eaf0; --primary-ink: #1f222c; --dark: #0c0d12; --dark-ink: #e8eaf0;
+      --note: #d4a826; --note-ink: #14161c; --ok-bg: #1d2a18; --err-bg: #331c1c; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c; --paper: #1f222c; --paper-2: #272a36; --ink: #e8eaf0; --ink-2: #a4a9bb; --ink-3: #777c90;
+    --line: #363a48; --primary: #e8eaf0; --primary-ink: #1f222c; --dark: #0c0d12; --dark-ink: #e8eaf0;
+    --note: #d4a826; --note-ink: #14161c; --ok-bg: #1d2a18; --err-bg: #331c1c; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.4;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: inherit; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 600; }
+  p { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { background: var(--bg); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding-block: 10px; border-bottom: 1px dashed var(--line);
+    margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .toolbar .label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
+  .seg button { background: transparent; border: 0; padding: 6px 10px; font-size: 13px; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--note); outline-offset: 2px; }
+
+  /* ---------- stage ---------- */
+  .stage { display: grid; grid-template-columns: minmax(0, 420px); justify-content: center; gap: 24px; padding-block: 20px 40px; }
+  /* desktop: same mobile layout inside a 960px container, cards two per row, hero in two columns */
+  @media (min-width: 992px) {
+    .stage { grid-template-columns: minmax(0, 960px); }
+    .stage.notes-on { grid-template-columns: minmax(0, 960px) minmax(260px, 340px); }
+    .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+    .hero .cover { aspect-ratio: 3 / 2; border-bottom: 0; border-right: 1px dashed var(--line); height: 100%; }
+    .hero .body { padding: 20px 24px; }
+    .hero h1 { font-size: 26px; }
+    .hero .alert { grid-column: 1 / -1; margin: 0 24px 16px; }
+    .list-head, .chips { padding-inline: 24px; }
+    .list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 0 24px 24px; }
+    .ftr { padding-inline: 24px; }
+  }
+  @media (max-width: 991px) { .stage.notes-on .notes { order: 2; } }
+  .phone { position: relative; background: var(--bg); border: 1px solid var(--line); border-radius: 24px; overflow: clip; min-width: 0; display: grid; }
+
+  /* annotation markers */
+  .mk { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--note); color: var(--note-ink); font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 0 0 2px var(--paper); }
+  .phone:not(.notes-on) .mk { display: none; }
+  .anchor { position: relative; }
+
+  /* ---------- header ---------- */
+  .hdr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 3; background: var(--paper); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; line-height: 1.2; }
+  .hdr .logo { width: 28px; height: 28px; border: 2px solid var(--ink); border-radius: 6px; display: grid; place-items: center; font-size: 13px; }
+
+  /* ---------- hero ---------- */
+  .hero { background: var(--paper); display: grid; }
+  .hero .cover { aspect-ratio: 16 / 9; max-width: 100%; border-bottom: 1px dashed var(--line);
+    background: repeating-linear-gradient(135deg, transparent 0 10px, var(--paper-2) 10px 20px); display: grid; place-items: center; color: var(--ink-3); font-size: 12px; }
+  .hero .body { padding: 14px 14px 16px; display: grid; gap: 8px; }
+  .hero h1 { font-size: 22px; line-height: 1.2; }
+  .hero .facts { color: var(--ink-2); font-size: 14px; }
+  .hero .facts b { color: var(--ink); font-weight: 600; }
+  .hero .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 500; border: 1px solid var(--line); background: var(--paper-2); width: fit-content; }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+  .pill.ok { background: var(--ok-bg); border-color: transparent; } .pill.ok::before { background: var(--ok); }
+  .pill.err { background: var(--err-bg); border-color: transparent; } .pill.err::before { background: var(--err); }
+  .ghost { background: none; border: 0; padding: 0; color: var(--ink-2); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ink-3); display: inline-flex; align-items: center; gap: 6px; }
+  .alert { margin: 0 14px 14px; display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--err-bg); font-size: 13px; }
+  .alert i { flex: none; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--err); margin-top: 2px; }
+
+  /* ---------- list head with switch ---------- */
+  .list-head { display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px 14px 10px; }
+  .chips { display: flex; gap: 8px; padding: 0 14px 12px; overflow-x: auto; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+  .chip .n { font-size: 11px; color: var(--ink-3); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip[aria-pressed="true"] .n { color: inherit; opacity: .7; }
+  .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); cursor: pointer; user-select: none; }
+  .switch input { appearance: none; width: 36px; height: 22px; border-radius: 999px; background: var(--line); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+  .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); transition: left .15s; }
+  .switch input:checked { background: var(--ink); }
+  .switch input:checked::after { left: 17px; }
+
+  /* ---------- coupon card ---------- */
+  .list { display: grid; gap: 12px; padding: 0 14px 20px; }
+  .coupon { position: relative; background: var(--paper); border-radius: 16px; overflow: clip; display: grid; gap: 12px; min-width: 0; padding-bottom: 14px; }
+  .coupon.spent { opacity: .75; }
+  /* photo slider with dots, like the e-shop ski-pass card */
+  .photos { position: relative; }
+  .photos .track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .photos .track::-webkit-scrollbar { display: none; }
+  .photos .ph { flex: none; width: 100%; aspect-ratio: 3 / 2; scroll-snap-align: start; display: grid; place-items: center; color: var(--ink-3); font-size: 12px;
+    background: repeating-linear-gradient(135deg, transparent 0 10px, var(--paper-2) 10px 20px); border-bottom: 1px dashed var(--line); }
+  .photos .ph:nth-child(2) { background: repeating-linear-gradient(45deg, transparent 0 10px, var(--paper-2) 10px 20px); }
+  .photos .ph:nth-child(3) { background: repeating-linear-gradient(90deg, transparent 0 10px, var(--paper-2) 10px 20px); }
+  .photos .dots { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 5px; pointer-events: none; }
+  .photos .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--paper); opacity: .5; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+  .photos .dots i.on { opacity: 1; width: 16px; border-radius: 3px; }
+  .photos .place { position: absolute; left: 12px; top: 12px; }
+  .coupon .txt { display: grid; gap: 6px; min-width: 0; padding: 2px 14px 0; }
+  .coupon h3 { font-size: 17px; line-height: 1.2; text-transform: uppercase; letter-spacing: .01em; }
+  .coupon .short { color: var(--ink-2); font-size: 13px; }
+  .rows { display: grid; gap: 6px; font-size: 13px; color: var(--ink); margin-top: 2px; }
+  .rows div { display: flex; gap: 8px; align-items: flex-start; }
+  .rows i { flex: none; width: 14px; height: 14px; border: 1.5px solid var(--ink-3); border-radius: 50%; margin-top: 2px; }
+  .rows i.cal { border-radius: 3px; }
+  .kv { display: grid; gap: 8px; margin-top: 2px; }
+  .kv div { display: grid; gap: 2px; }
+  .kv b { font-size: 11px; font-weight: 500; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+  .kv span { font-size: 13px; color: var(--ink); }
+  .kv .price { font-size: 15px; font-weight: 700; }
+  .kv .price s { font-size: 12px; font-weight: 400; color: var(--ink-3); margin-left: 6px; }
+  .kv a { color: var(--ink); font-weight: 600; text-decoration: none; }
+  .kv a::after { content: " ↗"; font-size: 12px; color: var(--ink-2); }
+  .coupon .squares, .coupon .slider, .coupon .promo, .coupon .hint { margin-inline: 14px; }
+  .coupon .squares { margin-top: -4px; }
+  .coupon .txt .kv { margin-bottom: 2px; }
+  .coupon .slider { margin-inline: 0; padding-inline: 14px; }
+  .place { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--ink); width: fit-content; padding: 3px 9px 3px 7px; border-radius: 6px; background: var(--paper); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .place::before { content: ""; width: 8px; height: 8px; border-radius: 50% 50% 50% 0; border: 2px solid currentColor; transform: rotate(-45deg); }
+  .place.away { background: var(--ink); color: var(--paper); }
+  .squares { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); }
+  .squares i { width: 12px; height: 12px; border-radius: 3px; background: var(--ok); }
+  .squares i.used { background: var(--err); }
+  .squares i.cancelled { background: var(--line); }
+  .squares .lbl { margin-left: 6px; }
+
+  /* slider of codes */
+  .slider { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 14px 4px; scrollbar-width: none; }
+  .slider::-webkit-scrollbar { display: none; }
+  .tile { flex: none; width: 150px; scroll-snap-align: start; position: relative; display: grid; gap: 6px; justify-items: center; padding: 10px 8px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); text-align: center; }
+  .tile button.open { all: unset; cursor: pointer; display: grid; gap: 6px; justify-items: center; width: 100%; }
+  .tile .code { width: 118px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(9, 1fr); gap: 1.5px; }
+  .tile .code i { background: transparent; } .tile .code i.o { background: var(--ink); }
+  .tile .code.bar { grid-template-columns: repeat(40, 1fr); gap: 0; aspect-ratio: 2 / 1; align-self: center; }
+  .tile .n { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; }
+  .tile .who { font-size: 11px; color: var(--ink-3); }
+  .tile.used, .tile.cancelled { opacity: .35; }
+  .tile.used::after, .tile.cancelled::after { content: "Использован"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 600; color: var(--ink); background: color-mix(in srgb, var(--paper) 55%, transparent); border-radius: 12px; }
+  .tile.cancelled::after { content: "Аннулирован"; }
+  .hint { font-size: 12px; color: var(--ink-3); }
+
+  /* promo */
+  .promo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border: 1px dashed var(--ink-3); border-radius: 12px; font-family: var(--mono); font-size: 17px; letter-spacing: .06em; }
+  .promo button { font-family: var(--font); letter-spacing: 0; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font-size: 12px; font-weight: 600; }
+
+  .empty { padding: 30px 14px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+  /* ---------- footer ---------- */
+  .ftr { background: var(--dark); color: var(--dark-ink); padding: 20px 16px 24px; display: grid; gap: 14px; font-size: 13px; }
+  .ftr .lbl { opacity: .6; font-size: 12px; }
+  .ftr .big { font-size: 17px; font-weight: 600; }
+  .ftr .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ftr .copy { opacity: .5; font-size: 11px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.12); }
+
+  /* ---------- zoom (full-screen code) ---------- */
+  .zoom { position: fixed; inset: 0; z-index: 21; background: var(--paper); display: grid; grid-template-rows: auto 1fr; }
+  .zoom .zh { background: var(--dark); color: var(--dark-ink); padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .zoom .zh h3 { font-size: 15px; font-weight: 600; }
+  .zoom .close { width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,.3); background: transparent; color: inherit; font-size: 18px; flex: none; }
+  .zoom .zb { display: grid; place-content: center; justify-items: center; gap: 14px; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); text-align: center; }
+  .zoom .code { width: min(80vw, 300px); aspect-ratio: 1; display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; }
+  .zoom .code i.o { background: var(--ink); }
+  .zoom .code.bar { grid-template-columns: repeat(40, 1fr); gap: 0; aspect-ratio: 2 / 1; }
+  .zoom .big { font-family: var(--mono); font-size: 28px; letter-spacing: .08em; }
+  @media (min-width: 900px) { .zoom { left: 50%; right: auto; width: 420px; transform: translateX(-50%); top: 24px; bottom: 24px; border-radius: 24px; overflow: clip; box-shadow: 0 12px 40px rgba(0,0,0,.35); } }
+
+  /* ---------- notes ---------- */
+  .notes { display: none; gap: 10px; min-width: 0; }
+  .notes h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+  .notes ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .notes li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; font-size: 13px; color: var(--ink-2); }
+  .notes li b { color: var(--ink); font-weight: 600; }
+  .notes li .mk { position: static; border: 0; box-shadow: none; }
+  .notes .q { border-top: 1px dashed var(--line); padding-top: 10px; }
+  .stage.notes-on .notes { display: grid; }
+</style>
+
+<div class="toolbar">
+  <span class="label">Wireframe · купонная книга · v5</span>
+  <div class="seg" role="group" aria-label="Сценарий">
+    <button type="button" data-scn="active" aria-pressed="true">Действует</button>
+    <button type="button" data-scn="cancelled" aria-pressed="false">Аннулирована</button>
+  </div>
+  <button type="button" class="seg" id="notesBtn" aria-pressed="false" style="padding:6px 10px;font-size:13px">Пометки</button>
+</div>
+
+<div class="stage" id="stage">
+  <div class="phone" id="phone">
+    <header class="hdr"><span class="logo">К</span><span>Красная Поляна<br>Купонная книга</span></header>
+
+    <section class="hero anchor">
+      <span class="mk" style="right:10px;top:10px">1</span>
+      <div class="cover">обложка книги 16:9</div>
+      <div class="body">
+        <h1 data-f="title">Новотель Резорт СПА 12 посещений</h1>
+        <p class="facts" data-f="facts"><b>1 взрослый</b> · 2–11 ноября</p>
+        <div class="row">
+          <span class="pill ok" data-f="status">Действует · ещё 9 дней</span>
+          <button class="ghost" type="button">Скачать PDF</button>
+        </div>
+      </div>
+      <div class="alert" id="bookAlert" hidden><i></i><span>Книга аннулирована, купоны больше не действуют. Если это ошибка, позвоните: <a class="nums" href="tel:+78005502020" style="white-space:nowrap;font-weight:600">8 800 550-20-20</a></span></div>
+    </section>
+
+    <div class="list-head anchor">
+      <span class="mk" style="left:-4px;top:8px">2</span>
+      <label class="switch"><input type="checkbox" id="onlyUnused"> Только неиспользованные</label>
+    </div>
+
+    <div class="chips anchor" id="chips" hidden><span class="mk" style="left:-4px;top:-8px">8</span></div>
+
+    <div class="list" id="list"></div>
+
+    <footer class="ftr">
+      <div class="row">
+        <div><div class="lbl">Вопросы по книге</div><div class="big nums">8 800 550-20-20</div></div>
+        <div><div class="lbl">Электронная почта</div><div>infocenter@kpresort.ru</div></div>
+      </div>
+      <div class="copy">© НАО «Красная Поляна»</div>
+    </footer>
+
+    <div class="zoom" id="zoom" hidden>
+      <div class="zh"><h3 id="zTitle"></h3><button type="button" class="close" data-close aria-label="Закрыть">×</button></div>
+      <div class="zb">
+        <div class="code" id="zCode"></div>
+        <div class="big nums" id="zNum"></div>
+        <div class="hint" id="zWho"></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="notes" id="notes">
+    <h2>Пометки</h2>
+    <ol>
+      <li><span class="mk">1</span><span><b>Хиро книги.</b> Обложка из шаблона, название, для кого и на какие даты, статус, «Скачать PDF». Номер книги и кто выдал гостю не нужны, остаются только в PDF.</span></li>
+      <li><span class="mk">2</span><span><b>Один список без чипсов и табов.</b> Свитчер «Только неиспользованные» прячет потраченные купоны и использованные коды внутри слайдеров. Купонов в книге 2–7, фильтр по категориям не нужен.</span></li>
+      <li><span class="mk">3</span><span><b>Карточка как у ски-пасса в E-shop:</b> слайдер фото на всю ширину с точками и меткой места поверх, заголовок капсом, короткое описание, «Стоимость по купону» (скидка, бонусы или бесплатно, рядом обычная цена зачёркнута), «Где воспользоваться» — адрес или место как в старой книге; если в шаблоне вместо места ссылка, место становится ссылкой ↗ и открывается в новой вкладке. Ниже часы или срок. Без лейблов категории и способа предъявления. Квадратики: зелёный — доступный код, красный — использован.</span></li>
+      <li><span class="mk">4</span><span><b>Коды сразу на экране.</b> Горизонтальный слайдер, по одному коду на тайл с номером. Использованные полупрозрачные с подписью «Использован». Слайдер открывается на первом доступном коде, потраченные остаются слева. Тап по коду — увеличение на весь экран. Под слайдером всё, что относится к кодам: квадратики, «9 из 12 доступно · один код на всю семью». Выше — только про услугу: описание, часы, ссылка на сайт.</span></li>
+      <li><span class="mk">5</span><span><b>Промокод</b> вместо слайдера: код и «Скопировать», подпись «Назовите при оплате». Штрихкод — тот же слайдер, тайл с полосами.</span></li>
+      <li><span class="mk">6</span><span><b>Где действует.</b> Метка места над названием: на курорте — светлая («Поляна 540», «Поляна 960»), вне курорта — тёмная («Сочи Парк, Сириус»). Купоны отсортированы: сначала курорт, потом остальное.</span></li>
+      <li><span class="mk">9</span><span><b>Десктоп.</b> Контейнер 960 px, тот же мобильный вид: хиро в две колонки (обложка слева, текст справа), карточки по две в ряд, слайдер кодов внутри карточки. Отдельного десктопного макета нет.</span></li>
+      <li><span class="mk">7</span><span><b>Увеличенный код.</b> Тёмная шапка с названием купона, крупный код, номер, кому он. Закрыть крестиком или свайпом вниз.</span></li>
+      <li><span class="mk">8</span><span><b>Чипсы по категории</b> из шаблона купона: «Все · SPA и бани · Прогулочные билеты · Проживание · Сочи Парк». Сочи Парк — просто категория. Ряд скроллится по горизонтали, прячется, если в книге одна категория. Метка места на карточке остаётся.</span></li>
+      <li class="q"><span class="mk">?</span><span><b>Вопросы.</b> Нужно ли полное описание («Показать полностью» в старой книге), или хватает короткого? Что делать в слайдере, когда кодов 12 и больше — листать или «ещё 9»?</span></li>
+    </ol>
+  </aside>
+</div>
+
+<script>
+  const data = {
+    active: {
+      title: 'Новотель Резорт СПА 12 посещений', facts: '<b>1 взрослый</b> · 2–11 ноября', status: 'Действует · ещё 9 дней', kind: 'ok', cancelled: false,
+      coupons: [
+        { id: 'spa', how: 'qr', cat: 'SPA и бани', place: 'Поляна 960 · Новотель Резорт', title: 'Спа-центр отеля Novotel Resort', short: 'Бассейн, джакузи, хаммам и сауна.', price: 'Бесплатно', regular: '3 500 ₽', where: 'Спа-центр отеля «Новотель Резорт», Поляна 960, 2 этаж', who: 'Один код на всю семью', hours: 'Ежедневно с 09:00 до 21:00', photos: 3,
+          codes: [{ n: '3933 7792', st: 'used' }, { n: '3933 7801', st: 'used' }, { n: '3933 7814', st: 'used' }, { n: '3933 7820', st: 'ok' }, { n: '3933 7833', st: 'ok' }, { n: '3933 7847', st: 'ok' }, { n: '3933 7851', st: 'ok' }, { n: '3933 7866', st: 'ok' }, { n: '3933 7872', st: 'ok' }, { n: '3933 7889', st: 'ok' }, { n: '3933 7893', st: 'ok' }, { n: '3933 7904', st: 'ok' }] },
+        { id: 'lift', how: 'qr', cat: 'Прогулочные билеты', place: 'Поляна 540 · турникеты К1', title: 'Канатная дорога на 12 дней', short: 'Между Поляной 540 и Поляной 960.', price: 'Бесплатно', where: 'Турникеты канатной дороги К1 на Поляне 540 и Поляне 960', who: 'Один код на всю семью', hours: 'С 09:00 до 23:00', photos: 2,
+          codes: [{ n: '7120 4401', st: 'ok' }] },
+        { id: 'stay', how: 'promo', cat: 'Проживание', place: 'Весь курорт', title: 'Скидка 20% на размещение', short: 'Отели и апартаменты курорта.', price: 'Скидка 20%', where: 'Отели и апартаменты курорта на сайте', whereUrl: 'https://krasnayapolyanaresort.ru/hotels', hours: 'До 30 ноября', photos: 1, promo: 'Gastreet2026' },
+        { id: 'sochi', how: 'bar', cat: 'Сочи Парк', place: 'Сочи Парк, Сириус', away: true, title: 'Сочи Парк, скидка 20%', short: 'Билет на 1 день, все шоу включены. Код в кассе парка.', price: 'Скидка 20%', regular: '3 700 ₽', where: 'Кассы Сочи Парка, Сириус, Олимпийский проспект 21', who: 'У каждого гостя свой код', hours: 'До 30 ноября', photos: 3,
+          codes: [{ n: 'SP-7QX3', st: 'used', who: 'Тест Тестович' }, { n: 'SP-7QX4', st: 'ok', who: 'Гость 2' }, { n: 'SP-7QX5', st: 'ok', who: 'Гость 3' }] }
+      ]
+    },
+    cancelled: {
+      title: 'Автопутешественники', facts: '<b>1 взрослый</b> · 29 октября — 2 ноября', status: 'Аннулирована 1 ноября', kind: 'err', cancelled: true,
+      coupons: [
+        { id: 'kant', how: 'qr', cat: 'Лыжи и сноуборд', place: 'Поляна 540 · отель Marriott', title: 'Сервисный центр «Кант», 1000 бонусов', short: 'Подготовка и ремонт лыж и сноубордов.', price: '1 000 бонусов', where: 'Сервис-центр «Кант», отель Marriott, Поляна 540', who: 'Один код на всю семью', photos: 2,
+          codes: [{ n: '5120 0031', st: 'used' }] },
+        { id: 'pan', how: 'qr', cat: 'Прогулочные билеты', place: 'Поляна 540 или 960', title: 'Прогулочный билет «Панорама»', short: 'Канатные дороги курорта.', price: 'Бесплатно', regular: '2 100 ₽', where: 'Кассы канатных дорог на Поляне 540 и Поляне 960', who: 'Один код на всю семью', photos: 1,
+          codes: [{ n: '5120 0042', st: 'cancelled' }] },
+        { id: 'lunch', how: 'qr', cat: 'Бесплатно', place: 'Отель проживания', title: 'Ланчбокс в дорогу', short: 'Если выезжаете до завтрака.', price: 'Бесплатно', where: 'Ресепшен отеля проживания, накануне до 20:00', who: 'Один код на всю семью', photos: 1,
+          codes: [{ n: '5120 0053', st: 'cancelled' }] },
+        { id: 'park', how: 'promo', cat: 'Бесплатно', place: 'Парковки 540 и 960', title: 'Парковка', short: 'Бесплатно для проживающих.', price: 'Бесплатно', regular: '500 ₽ / сутки', where: 'Парковки Поляна 540 и Поляна 960', promo: 'PARK540' },
+        { id: 'spa2', how: 'qr', cat: 'SPA и бани', place: 'Спа отелей курорта', title: 'Спа-комплексы, скидка 30%', short: '«Марриотт», «Новотель Резорт» и «Панорама».', price: 'Скидка 30%', where: 'Спа отелей «Марриотт», «Новотель Резорт» и «Панорама»', who: 'На 3 гостей', photos: 2,
+          codes: [{ n: '5120 0064', st: 'cancelled' }, { n: '5120 0075', st: 'cancelled' }, { n: '5120 0086', st: 'cancelled' }] }
+      ]
+    }
+  };
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let scn = 'active', unit = 'all';
+
+  function cells(seed, bar) {
+    let s = seed, out = '';
+    const n = bar ? 40 : 81;
+    for (let i = 0; i < n; i++) { s = (s * 9301 + 49297) % 233280; out += '<i class="' + (s / 233280 < (bar ? 0.5 : 0.45) ? 'o' : '') + '"></i>'; }
+    return out;
+  }
+  const seedOf = str => Array.from(str).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 100000, 7);
+
+  function render() {
+    const b = data[scn], only = $('#onlyUnused').checked;
+    $('[data-f=title]').textContent = b.title;
+    $('[data-f=facts]').innerHTML = b.facts;
+    const st = $('[data-f=status]'); st.textContent = b.status; st.className = 'pill ' + b.kind;
+    $('#bookAlert').hidden = !b.cancelled;
+
+    // category chips («Сочи Парк» is just a category); hidden when the book has one category
+    const chips = $('#chips'); const cats = Array.from(new Set(b.coupons.map(c => c.cat)));
+    chips.hidden = cats.length < 2;
+    $$('.chip', chips).forEach(x => x.remove());
+    if (cats.length > 1) {
+      const mk = (key, label, count) => { const el = document.createElement('button'); el.type = 'button'; el.className = 'chip'; el.setAttribute('aria-pressed', String(unit === key)); el.innerHTML = esc(label) + '<span class="n">' + count + '</span>'; el.addEventListener('click', () => { unit = key; render(); }); chips.appendChild(el); };
+      mk('all', 'Все', b.coupons.length);
+      cats.forEach(u => mk(u, u, b.coupons.filter(c => c.cat === u).length));
+    } else unit = 'all';
+
+    const list = $('#list'); list.innerHTML = '';
+    let shown = 0;
+    b.coupons.forEach((c, idx) => {
+      if (unit !== 'all' && c.cat !== unit) return;
+      const codes = c.codes || [];
+      const okCount = codes.filter(x => x.st === 'ok').length;
+      const isPromo = c.how === 'promo';
+      const spent = !isPromo && okCount === 0;
+      if (only && (spent || (isPromo && b.cancelled))) return;
+      shown++;
+      const el = document.createElement('article');
+      el.className = 'coupon' + (spent ? ' spent' : '');
+      let codesHtml;
+      if (isPromo) {
+        codesHtml = (c.id === 'stay' ? '<span class="mk" style="right:-6px;top:-6px">5</span>' : '') +
+          (b.cancelled ? '<div class="hint">Промокод больше не действует.</div>' :
+          '<div class="promo"><span>' + esc(c.promo) + '</span><button type="button" data-copy="' + esc(c.promo) + '">Скопировать</button></div><div class="hint">Назовите промокод при оплате.</div>');
+      } else {
+        const visible = only ? codes.filter(x => x.st === 'ok') : codes;
+        codesHtml = '<div class="slider" data-slider>' + visible.map(x =>
+          '<div class="tile ' + x.st + '">' +
+            (x.st === 'ok' ? '<button class="open" type="button" data-zoom="' + esc(x.n) + '">' : '<div>') +
+            '<div class="code' + (c.how === 'bar' ? ' bar' : '') + '">' + cells(seedOf(x.n), c.how === 'bar') + '</div>' +
+            '<div class="n">' + esc(x.n) + '</div>' + (x.who ? '<div class="who">' + esc(x.who) + '</div>' : '') +
+            (x.st === 'ok' ? '</button>' : '</div>') +
+          '</div>').join('') + '</div>' +
+          (visible.length === 0 ? '<div class="hint">Все коды использованы.</div>' : '');
+      }
+      const squares = isPromo ? '' :
+        '<div class="squares">' + codes.map(x => '<i class="' + x.st + '"></i>').join('') +
+        '<span class="lbl">' + (b.cancelled ? 'аннулированы' : okCount + ' из ' + codes.length + ' доступно') + (c.who ? ' · ' + esc(c.who).toLowerCase() : '') + '</span></div>';
+      el.innerHTML =
+        (idx === 0 ? '<span class="mk" style="right:-6px;top:-6px">3</span>' : '') +
+        (c.away ? '<span class="mk" style="left:-6px;top:-6px">6</span>' : '') +
+        '<div class="photos"><div class="track" data-photos>' + Array.from({ length: c.photos || 1 }, (_, i) => '<div class="ph">фото ' + (i + 1) + ' из ' + (c.photos || 1) + '</div>').join('') + '</div>' +
+          ((c.photos || 1) > 1 ? '<div class="dots">' + Array.from({ length: c.photos }, (_, i) => '<i class="' + (i === 0 ? 'on' : '') + '"></i>').join('') + '</div>' : '') +
+          '<span class="place' + (c.away ? ' away' : '') + '">' + esc(c.place) + '</span></div>' +
+        '<div class="txt">' +
+          '<h3>' + esc(c.title) + '</h3>' +
+          '<p class="short">' + esc(c.short) + '</p>' +
+          '<div class="kv">' +
+            '<div><b>Стоимость по купону</b><span class="price">' + esc(c.price) + (c.regular ? '<s>' + esc(c.regular) + '</s>' : '') + '</span></div>' +
+            '<div><b>Где воспользоваться</b><span>' + (c.whereUrl ? '<a href="' + esc(c.whereUrl) + '" target="_blank" rel="noopener" title="Страница услуги на сайте">' + esc(c.where) + '</a>' : esc(c.where)) + '</span></div>' +
+          '</div>' +
+          (c.hours ? '<div class="rows"><div><i class="cal"></i><span>' + esc(c.hours) + '</span></div></div>' : '') +
+        '</div>' +
+        (idx === 0 && !isPromo ? '<div class="anchor"><span class="mk" style="left:-6px;top:-4px">4</span></div>' : '') +
+        codesHtml +
+        squares;
+      list.appendChild(el);
+
+      const ph = el.querySelector('[data-photos]'); const dots = el.querySelectorAll('.dots i');
+      if (ph && dots.length) ph.addEventListener('scroll', () => { const i = Math.round(ph.scrollLeft / ph.clientWidth); dots.forEach((d, k) => d.classList.toggle('on', k === i)); }, { passive: true });
+      const sl = el.querySelector('[data-slider]');
+      if (sl) { const firstOk = codes.findIndex(x => x.st === 'ok'); const tiles = $$('.tile', sl); const target = only ? 0 : firstOk; if (target > 0 && tiles[target]) requestAnimationFrame(() => { sl.scrollLeft = tiles[target].offsetLeft - sl.offsetLeft - 14; }); }
+      $$('[data-zoom]', el).forEach(btn => btn.addEventListener('click', () => openZoom(c, btn.dataset.zoom)));
+      const cb = el.querySelector('[data-copy]'); if (cb) cb.addEventListener('click', () => { try { navigator.clipboard.writeText(cb.dataset.copy).catch(() => {}); } catch (e) {} cb.textContent = 'Скопировано'; });
+    });
+    if (!shown) list.innerHTML = '<div class="empty">Неиспользованных купонов нет</div>';
+  }
+
+  function openZoom(c, num) {
+    const code = c.codes.find(x => x.n === num);
+    $('#zTitle').textContent = c.title;
+    const z = $('#zCode'); z.className = 'code' + (c.how === 'bar' ? ' bar' : ''); z.innerHTML = cells(seedOf(num), c.how === 'bar');
+    $('#zNum').textContent = num;
+    $('#zWho').textContent = (code && code.who ? code.who + ' · ' : '') + c.place;
+    $('#zoom').hidden = false;
+  }
+  $('[data-close]').addEventListener('click', () => { $('#zoom').hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#zoom').hidden = true; });
+  (() => { let y0 = null; const z = $('#zoom'); z.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true }); z.addEventListener('touchend', e => { if (y0 !== null && e.changedTouches[0].clientY - y0 > 80) z.hidden = true; y0 = null; }); })();
+
+  $('#onlyUnused').addEventListener('change', render);
+  $$('[data-scn]').forEach(b => b.addEventListener('click', () => { scn = b.dataset.scn; unit = 'all'; $$('[data-scn]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); $('#zoom').hidden = true; render(); }));
+  $('#notesBtn').addEventListener('click', () => { const on = $('#notesBtn').getAttribute('aria-pressed') !== 'true'; $('#notesBtn').setAttribute('aria-pressed', String(on)); $('#phone').classList.toggle('notes-on', on); $('#stage').classList.toggle('notes-on', on); try { localStorage.setItem('wf-notes', on ? '1' : '0'); } catch (e) {} });
+  try { if (localStorage.getItem('wf-notes') === '1') $('#notesBtn').click(); } catch (e) {}
+  render();
+</script>

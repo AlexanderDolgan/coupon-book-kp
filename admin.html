@@ -1,0 +1,545 @@
+<title>Админка купонной книги</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/*FONTS*/
+/*TOKENS*/
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--colorBgLayout); color: var(--colorText); font: 400 14px/22px var(--fontFamily); -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+img { max-width: 100%; display: block; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--colorPrimary); outline-offset: 2px; }
+.nums { font-variant-numeric: tabular-nums; }
+
+/* ---------- каркас: меню слева, контент справа; всё карточками на сером ---------- */
+.app { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--spaceLG); max-width: 1760px; margin: 0 auto; padding-block: var(--space) var(--spaceXL); align-items: start; }
+.side { position: sticky; top: var(--space); max-height: calc(100dvh - 32px); overflow-y: auto; scrollbar-width: thin; background: var(--colorBgContainer); border-radius: var(--radiusXL); padding: var(--spaceLG) var(--space) var(--space); display: grid; gap: var(--spaceLG); }
+.side .brand { display: grid; gap: 8px; padding: 0 12px; }
+.side .brand img { height: 36px; width: auto; }
+.side .brand span { font-size: 14px; line-height: 22px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; color: var(--colorPrimary); }
+.nav { display: grid; gap: var(--space); }
+.nav .grp { display: grid; gap: 2px; }
+.nav .ttl { font-size: 14px; line-height: 22px; font-weight: 500; color: var(--colorTextTertiary); padding: 0 12px 4px; }
+.nav a { display: flex; align-items: center; gap: 12px; height: var(--controlHeight); padding: 0 12px; border-radius: var(--radiusL); color: var(--colorTextSecondary); text-decoration: none; white-space: nowrap; }
+.nav a svg { width: 20px; height: 20px; flex: none; }
+.nav a:hover { background: var(--colorBgContainerSecondary); color: var(--colorText); }
+.nav a[aria-current="page"] { background: var(--colorPrimaryBg); color: var(--colorPrimaryActive); font-weight: 500; }
+.account { display: flex; align-items: center; gap: 12px; padding: var(--space) 8px 0; border-top: 1px solid var(--colorBorderSecondary); }
+.account .ava { width: 40px; height: 40px; border-radius: 50%; background: var(--colorBgLayout); display: grid; place-items: center; font-weight: 700; flex: none; }
+.account .who { display: grid; min-width: 0; }
+.account .who b { font-weight: 500; }
+.account .who span { color: var(--colorTextTertiary); }
+.main { display: grid; gap: var(--spaceLG); min-width: 0; padding-top: var(--space); }
+.topbar { display: none; }
+
+/* ---------- заголовок страницы ---------- */
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--spaceLG); flex-wrap: wrap; }
+.head .t { display: grid; gap: 8px; min-width: 0; }
+.head h1 { font-size: 30px; line-height: 36px; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; }
+.head p { font-size: 16px; line-height: 24px; color: var(--colorTextSecondary); }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--colorTextSecondary); text-decoration: none; font-weight: 500; width: fit-content; }
+.back svg { width: 16px; height: 16px; }
+.back:hover { color: var(--colorText); }
+
+/* ---------- кнопки ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--controlHeight); padding: 0 16px; border-radius: 999px; border: 1px solid var(--colorBorder); background: var(--colorBgContainer); color: var(--colorText); font-size: 14px; line-height: 19px; white-space: nowrap; text-decoration: none; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn:hover { border-color: var(--colorText); }
+.btn.primary { background: var(--colorPrimary); border-color: var(--colorPrimary); color: #fff; font-weight: 500; }
+.btn.primary:hover { background: var(--colorPrimaryHover); border-color: var(--colorPrimaryHover); }
+.btn.lg { height: var(--controlHeightLG); padding: 0 32px; font-size: 16px; line-height: 24px; }
+.btn.danger { border-color: var(--colorBorderBrand); color: var(--colorPrimary); }
+.btn.danger:hover { background: var(--colorPrimaryBg); }
+.icon-btn { width: 32px; height: 32px; border: 0; border-radius: var(--radius); background: transparent; color: var(--colorTextTertiary); display: inline-grid; place-items: center; padding: 0; flex: none; }
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn:hover { background: var(--colorFillQuaternary); color: var(--colorText); }
+
+/* ---------- поля ---------- */
+.input, .select, .textarea { width: 100%; height: var(--controlHeight); padding: 0 12px; border: 1px solid var(--colorBorderSecondary); border-radius: var(--radius); background: var(--colorBgContainer); color: var(--colorText); font-size: 14px; line-height: 22px; }
+.textarea { height: auto; min-height: 120px; padding: 8px 12px; resize: vertical; display: block; }
+.input::placeholder, .textarea::placeholder { color: var(--colorTextTertiary); }
+.input:hover, .select:hover, .textarea:hover { border-color: var(--colorBorder); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--colorText); box-shadow: 0 0 0 2px var(--colorFillSecondary); }
+.select { appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b92a7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; }
+.with-ic { position: relative; min-width: 0; }
+.with-ic > svg { position: absolute; left: 12px; top: 50%; width: 18px; height: 18px; margin-top: -9px; color: var(--colorTextTertiary); pointer-events: none; }
+.with-ic .input, .with-ic .select { padding-left: 38px; }
+.with-ic kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font: 500 14px/20px var(--fontFamily); color: var(--colorTextSecondary); background: var(--colorBgContainerSecondary); border: 1px solid var(--colorBorderSecondary); border-radius: var(--radiusSM); padding: 0 6px; pointer-events: none; }
+
+/* ---------- «Выданные купоны» ---------- */
+.filters { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 224px); gap: 12px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { flex: none; height: var(--controlHeight); padding: 0 16px; border-radius: 999px; border: 0; background: var(--chipBg); color: var(--chipText); font: 400 14px/22px var(--fontFamily); display: inline-flex; align-items: center; gap: 8px; transition: background .15s, color .15s; }
+.chip b { font-weight: 500; color: var(--colorText); }
+@media (hover: hover) { .chip:hover { background: var(--chipBgHover); color: var(--chipTextActive); } .chip:hover b { color: inherit; } }
+.chip[aria-pressed="true"] { background: var(--chipBgActive); color: var(--chipTextActive); }
+.chip[aria-pressed="true"] b { color: inherit; }
+.card { background: var(--colorBgContainer); border-radius: var(--radiusXL); box-shadow: var(--boxShadowTertiary); min-width: 0; }
+.table-wrap { overflow-x: auto; border-radius: var(--radiusXL) var(--radiusXL) 0 0; }
+table { width: 100%; min-width: 920px; border-collapse: collapse; }
+th { text-align: left; font-weight: 500; color: var(--colorTextTertiary); padding: var(--space) 8px 12px; white-space: nowrap; }
+td { padding: 12px 8px; border-top: 1px solid var(--colorBgLayout); vertical-align: top; }
+th:first-child, td:first-child { padding-left: var(--spaceLG); }
+th:last-child, td:last-child { padding-right: var(--space); width: 56px; }
+tbody tr:hover td { background: var(--colorBgContainerSecondary); }
+td .t1 { font-weight: 500; }
+td .t2 { color: var(--colorTextTertiary); }
+td .t2.kid { color: #722ed1; }
+td.code { white-space: nowrap; }
+td.code span { display: inline-block; vertical-align: middle; white-space: normal; max-width: 220px; }
+td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
+.tag { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: var(--radiusSM); font-size: 14px; line-height: 22px; font-weight: 500; white-space: nowrap; }
+.tag.green { background: var(--tagGreenBg); color: var(--tagGreen); }
+.tag.red { background: var(--tagRedBg); color: var(--tagRed); }
+.tag.blue { background: var(--tagBlueBg); color: var(--tagBlue); }
+.tag.orange { background: var(--tagOrangeBg); color: var(--tagOrange); }
+.tag.grey { background: var(--colorBgLayout); color: var(--colorTextSecondary); }
+.empty { padding: var(--spaceXL) var(--spaceLG); text-align: center; color: var(--colorTextTertiary); }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; padding: var(--space) var(--spaceLG); border-top: 1px solid var(--colorBgLayout); color: var(--colorTextSecondary); }
+.pager .pages { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pager button, .pager .gap { min-width: 40px; height: 40px; padding: 0 12px; border-radius: 999px; border: 0; background: transparent; color: var(--colorText); display: inline-grid; place-items: center; }
+.pager button:hover { background: var(--colorBgContainerSecondary); }
+.pager button[aria-current="page"] { background: var(--chipBgActive); color: var(--chipTextActive); }
+.pager button svg { width: 18px; height: 18px; }
+.pager .gap { color: var(--colorTextTertiary); }
+
+/* ---------- «Шаблон купона» ---------- */
+.form { display: grid; grid-template-columns: minmax(0, 1fr) 384px; gap: var(--spaceLG); align-items: start; }
+.form .col { display: grid; gap: var(--spaceLG); min-width: 0; }
+.sec { padding: var(--spaceLG); display: grid; gap: var(--space); }
+.sec > header { display: grid; gap: 4px; }
+.sec h2 { font-size: 20px; line-height: 28px; font-weight: 500; }
+.sec header p, .hint { color: var(--colorTextTertiary); }
+.req { color: var(--colorPrimary); }
+.field { display: grid; gap: 6px; min-width: 0; align-content: start; }
+.field > label, .field > .lbl { font-weight: 500; }
+.field .hint { margin-top: -4px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space); }
+.rule { display: grid; gap: 8px; padding-top: var(--space); border-top: 1px solid var(--colorBgLayout); }
+.rule:first-of-type { padding-top: 0; border-top: 0; }
+.rule .lbl { font-size: 16px; line-height: 24px; font-weight: 500; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: var(--radiusL); background: var(--colorBgLayout); }
+.seg button { height: 32px; border: 0; border-radius: var(--radius); background: transparent; color: var(--colorTextSecondary); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
+.seg button:hover { color: var(--colorText); }
+.seg button[aria-pressed="true"] { background: var(--colorBgContainer); color: var(--colorText); box-shadow: var(--boxShadowTertiary); }
+.stepper { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; align-items: center; gap: 8px; }
+.stepper output { text-align: center; height: var(--controlHeight); line-height: 38px; border: 1px solid var(--colorBorderSecondary); border-radius: var(--radius); }
+.stepper button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--colorBorder); background: var(--colorBgContainer); display: grid; place-items: center; padding: 0; }
+.stepper button svg { width: 18px; height: 18px; }
+.stepper button:disabled { opacity: .4; cursor: default; }
+.note { padding: var(--space); border-radius: var(--radiusL); background: var(--colorBgContainerSecondary); display: grid; gap: 4px; }
+.note b { font-size: 16px; line-height: 24px; }
+.note ul { margin: 0; padding: 0; list-style: none; color: var(--colorTextSecondary); }
+.note.warn { background: var(--colorErrorBg); }
+.tagsin { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: var(--controlHeight); padding: 4px 8px; border: 1px solid var(--colorBorderSecondary); border-radius: var(--radius); background: var(--colorBgContainer); }
+.tagsin:focus-within { border-color: var(--colorText); box-shadow: 0 0 0 2px var(--colorFillSecondary); }
+.tagsin .pill { display: inline-flex; align-items: center; gap: 2px; height: 28px; padding: 0 4px 0 10px; border-radius: 999px; background: var(--colorBgLayout); }
+.tagsin .pill button { width: 24px; height: 24px; border: 0; background: transparent; color: var(--colorTextSecondary); display: grid; place-items: center; padding: 0; border-radius: 50%; }
+.tagsin .pill svg { width: 14px; height: 14px; }
+.tagsin input { flex: 1; min-width: 120px; border: 0; outline: 0; background: transparent; height: 28px; padding: 0 4px; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.thumbs .th { position: relative; width: 120px; aspect-ratio: 4 / 3; border-radius: var(--radiusL); overflow: clip; background: var(--colorBgContainerSecondary); }
+.thumbs .th img { width: 100%; height: 100%; object-fit: cover; }
+.thumbs .th button { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(29, 32, 43, .7); color: #fff; display: grid; place-items: center; padding: 0; }
+.thumbs .th button svg { width: 14px; height: 14px; }
+.thumbs label.add { width: 120px; aspect-ratio: 4 / 3; border-radius: var(--radiusL); border: 1px dashed var(--colorBorder); display: grid; place-content: center; justify-items: center; gap: 4px; color: var(--colorTextSecondary); cursor: pointer; text-align: center; }
+.thumbs label.add:hover { border-color: var(--colorText); color: var(--colorText); }
+.thumbs label.add svg { width: 20px; height: 20px; }
+.thumbs input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.books { display: flex; flex-wrap: wrap; gap: 8px; }
+.books a { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--colorBgLayout); text-decoration: none; font-weight: 500; }
+.books a span { font-weight: 400; color: var(--colorTextTertiary); }
+.split { display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; padding-top: var(--space); border-top: 1px solid var(--colorBgLayout); color: var(--colorTextSecondary); }
+.split .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.savebar { padding: var(--space) var(--spaceLG); display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: flex-start; gap: 12px; cursor: pointer; user-select: none; }
+.switch input { appearance: none; width: 44px; height: 22px; border-radius: 999px; background: var(--colorTextQuaternary); position: relative; margin: 1px 0 0; cursor: pointer; transition: background .15s; flex: none; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px #00230b33; transition: left .15s; }
+.switch input:checked { background: var(--colorPrimary); }
+.switch input:checked::after { left: 24px; }
+.switch .tx { display: grid; }
+.switch .tx b { font-size: 16px; line-height: 24px; font-weight: 500; }
+.switch .tx span { color: var(--colorTextTertiary); }
+
+/* ---------- предпросмотр: карточка купона, как в книге гостя ---------- */
+.preview { position: sticky; top: var(--space); padding: var(--spaceLG); display: grid; gap: var(--space); }
+.preview header { display: grid; gap: 4px; }
+.preview h2 { font-size: 20px; line-height: 28px; font-weight: 500; }
+.preview .stage { background: var(--colorBgLayout); border-radius: var(--radiusLG); padding: 12px; }
+.coupon { background: var(--colorBgContainer); border-radius: var(--radiusXL); overflow: clip; display: grid; gap: var(--space); padding-bottom: var(--spaceLG); box-shadow: var(--boxShadowTertiary); }
+.coupon.off { opacity: .55; }
+.coupon .photos { position: relative; aspect-ratio: 4 / 3; background: var(--colorBgContainerSecondary); display: grid; place-items: center; color: var(--colorTextTertiary); }
+.coupon .photos img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.coupon .tags { position: absolute; left: 16px; top: 16px; right: 16px; display: flex; gap: 6px; flex-wrap: wrap; }
+.coupon .tags .tag { white-space: normal; height: auto; min-height: 24px; }
+.coupon .tags .tag.plain { background: #fff; color: #3e4252; }
+.coupon .dots { position: absolute; left: 0; right: 0; bottom: 16px; display: flex; justify-content: center; gap: 16px; }
+.coupon .dots i { width: 8px; height: 8px; border-radius: 50%; background: #b9c0d0; }
+.coupon .dots i.on { background: var(--colorPrimary); box-shadow: 0 0 0 4px #fff; }
+.coupon .txt { display: grid; gap: 8px; padding: 0 16px; min-width: 0; }
+.coupon h3 { font-size: 18px; line-height: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; overflow-wrap: anywhere; }
+.coupon .short { color: var(--colorTextTertiary); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.coupon .kv { display: grid; gap: 2px; margin-top: 8px; }
+.coupon .kv .lbl { color: var(--colorTextTertiary); }
+.coupon .kv a { color: var(--colorPrimary); font-weight: 500; text-decoration: none; overflow-wrap: anywhere; }
+.coupon .kv a svg { width: 14px; height: 14px; vertical-align: -2px; margin-left: 4px; }
+.coupon .slider { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; scrollbar-width: none; }
+.coupon .slider::-webkit-scrollbar { display: none; }
+.coupon .tile { flex: none; width: 156px; display: grid; gap: 8px; justify-items: center; padding: 12px; border: 1px solid var(--colorBorderSecondary); border-radius: var(--radiusL); background: #fff; color: #3e4252; text-align: center; }
+.coupon .tile svg { width: 118px; height: auto; display: block; }
+.coupon .tile .n { font-family: var(--fontFamilyNumber); font-weight: 700; font-size: 16px; line-height: 20px; letter-spacing: .04em; }
+.coupon .squares { display: grid; gap: 8px; padding: 0 16px; color: var(--colorTextTertiary); }
+.coupon .squares .sq { display: flex; gap: 4px; flex-wrap: wrap; }
+.coupon .squares i { width: 12px; height: 12px; border-radius: var(--radiusSM); background: var(--colorSuccess); }
+
+/* ---------- снекбар ---------- */
+.snack { position: fixed; left: 50%; bottom: calc(var(--spaceLG) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 8px; width: max-content; max-width: calc(100% - 32px);
+  padding: 12px var(--space); border-radius: var(--radiusL); color: var(--colorText); background: var(--colorSuccessBg); border: 1px solid var(--colorSuccessBorder); box-shadow: var(--boxShadow); animation: snack-in .2s ease-out; }
+.snack svg { width: 20px; height: 20px; flex: none; color: var(--colorSuccess); }
+.snack.err { background: var(--colorErrorBg); border-color: var(--colorErrorBorder); }
+.snack.err svg { color: var(--colorError); }
+.snack.info { background: var(--colorBgContainer); border-color: var(--colorBorderSecondary); }
+.snack.info svg { color: var(--colorTextTertiary); }
+@keyframes snack-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .snack { animation: none; } }
+
+/* ---------- узкие экраны ---------- */
+@media (max-width: 1280px) {
+  .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filters .search { grid-column: 1 / -1; }
+  .form { grid-template-columns: minmax(0, 1fr); }
+  .preview { position: static; max-width: 420px; }
+}
+@media (max-width: 991px) {
+  .app { grid-template-columns: minmax(0, 1fr); gap: var(--space); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--colorBgContainer); border-radius: var(--radiusXL); padding: 12px var(--space); }
+  .topbar img { height: 32px; width: auto; }
+  .side { position: fixed; z-index: 20; inset: 0 auto 0 0; width: min(300px, 86vw); max-height: none; border-radius: 0 var(--radiusXL) var(--radiusXL) 0; transform: translateX(-105%); transition: transform .2s; padding-top: calc(var(--spaceLG) + env(safe-area-inset-top, 0px)); }
+  body[data-nav="open"] .side { transform: none; box-shadow: var(--boxShadow); }
+  body[data-nav="open"]::after { content: ""; position: fixed; inset: 0; z-index: 19; background: rgba(0, 0, 0, .5); }
+  .main { padding-top: 0; }
+  .head h1 { font-size: 24px; line-height: 28px; }
+}
+@media (max-width: 640px) {
+  .filters, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .sec, .preview { padding: var(--space); }
+  .chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .seg { grid-auto-flow: row; }
+}
+</style>
+
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><img src="img/logo.svg" alt="Красная Поляна · курорт" width="156" height="48"><span>Купонная книга</span></div>
+    <nav class="nav" id="nav" aria-label="Разделы"></nav>
+    <div class="account"><div class="ava">С</div><div class="who"><b>Саша</b><span>sasha</span></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <img src="img/logo.svg" alt="Красная Поляна · курорт" width="156" height="48">
+      <button class="btn" type="button" id="burger" aria-controls="side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Меню</button>
+    </div>
+
+    <!-- ===== Выданные купоны ===== -->
+    <section id="pg-issued" hidden>
+      <div class="main" style="padding-top:0">
+        <div class="head">
+          <div class="t"><h1>Выданные купоны</h1><p>Сегодня погашен 1 купон.</p></div>
+          <button class="btn" type="button" id="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>Экспорт данных</button>
+        </div>
+        <div class="filters">
+          <div class="with-ic search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input class="input" id="q" type="search" placeholder="Код, гость, телефон, № книги" aria-label="Поиск купона"><kbd>/</kbd></div>
+          <div class="with-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a2 2 0 0 0 0 6v3h16v-3a2 2 0 0 1 0-6V6H4z"/><path d="M14 6v12" stroke-dasharray="2 3"/></svg><select class="select" id="fKind" aria-label="Вид купона"><option value="">Все виды купонов</option></select></div>
+          <div class="with-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6"/></svg><select class="select" aria-label="Объект, выдавший книгу"><option>Все объекты</option><option>Новотель Резорт</option><option>Марриотт</option><option>Панорама</option></select></div>
+          <div class="with-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg><select class="select" aria-label="Период"><option>За всё время</option><option>Сегодня</option><option>За 7 дней</option><option>За 30 дней</option></select></div>
+        </div>
+        <div class="chips" id="statusChips" role="group" aria-label="Статус купона"></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Купон</th><th>Код</th><th>Гость</th><th>Статус</th><th><span hidden>Действия</span></th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+            <div class="empty" id="noRows" hidden>По этим условиям купонов нет</div>
+          </div>
+          <div class="pager"><span id="range"></span>
+            <div class="pages" id="pages"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Шаблон купона ===== -->
+    <section id="pg-template" hidden>
+      <div class="main" style="padding-top:0">
+        <div class="head">
+          <div class="t">
+            <a class="back" href="#template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Шаблоны купонов</a>
+            <h1 id="tTitle"></h1>
+            <p>Изменения коснутся книг, выданных после сохранения. Выданные купоны не меняются.</p>
+          </div>
+        </div>
+        <div class="form">
+          <div class="col">
+            <div class="card sec">
+              <header><h2>Что это</h2><p>Так купон выглядит в книге гостя.</p></header>
+              <div class="field"><label for="fName">Название <span class="req">*</span></label><input class="input" id="fName" data-b="name"></div>
+              <div class="field"><label for="fDesc">Описание</label><textarea class="textarea" id="fDesc" data-b="desc"></textarea></div>
+              <div class="field"><span class="lbl">Фото</span><p class="hint">Первое фото видно сразу, остальные гость листает. Пропорция 4:3.</p><div class="thumbs" id="thumbs"></div></div>
+              <div class="grid2">
+                <div class="field"><label for="fWhere">Где воспользоваться</label><p class="hint">Место или адрес. Например, Поляна 540, отель Marriott</p><input class="input" id="fWhere" data-b="where"></div>
+                <div class="field"><label for="fUrl">Страница услуги на сайте</label><p class="hint">Необязательно. С ней место в книге станет ссылкой</p><input class="input" id="fUrl" data-b="url" type="url" placeholder="https://"></div>
+              </div>
+              <div class="grid2">
+                <div class="field"><label for="fRegular">Обычная цена</label><p class="hint">Например, 3 400 ₽</p><input class="input" id="fRegular" data-b="regular"></div>
+                <div class="field"><label for="fPrice">Цена по купону</label><p class="hint">Например, 2 500 ₽, −20% или Бесплатно</p><input class="input" id="fPrice" data-b="price"></div>
+              </div>
+              <div class="grid2">
+                <div class="field"><label for="fCat">Категория</label><p class="hint">Группа в списке купонов и в выборе купонов для книги</p><select class="select" id="fCat" data-b="cat"></select></div>
+                <div class="field"><label for="fTag">Метки</label><p class="hint">Короткие пометки: «По брони», «18+»</p><div class="tagsin" id="tagsin"><input id="fTag" placeholder="Введите метку и нажмите Enter"></div></div>
+              </div>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Кому выдавать <span class="req">*</span></h2><p>Правила срабатывают при выдаче книги: каждый купон — отдельный код.</p></header>
+              <div class="rule"><span class="lbl">Взрослым</span><div class="seg" data-seg="adults" role="group" aria-label="Взрослым"><button type="button" data-v="none">Никому</button><button type="button" data-v="one">Одному</button><button type="button" data-v="each">Каждому</button></div></div>
+              <div class="rule"><span class="lbl">Детям</span><div class="seg" data-seg="kids" role="group" aria-label="Детям"><button type="button" data-v="none">Никому</button><button type="button" data-v="one">Одному</button><button type="button" data-v="each">Каждому</button></div></div>
+              <div class="rule"><span class="lbl">На всю книгу</span>
+                <div class="stepper"><button type="button" id="perMinus" aria-label="На всю книгу: меньше"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 12h12"/></svg></button><output id="perOut"></output><button type="button" id="perPlus" aria-label="На всю книгу: больше"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 12h12M12 6v12"/></svg></button></div>
+                <p class="hint" style="margin:0">Общие купоны на семью, без привязки к человеку, у гостя подпись «один код на всю семью». Например, ужин на двоих — 1</p>
+              </div>
+              <div class="note" id="ruleNote"></div>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Срок</h2><p>Купон не может действовать дольше книги.</p></header>
+              <div class="seg" data-seg="term" role="group" aria-label="Срок купона"><button type="button" data-v="book">Как у книги</button><button type="button" data-v="first">Первые дни</button><button type="button" data-v="dates">Свои даты</button></div>
+              <div class="grid2" id="termFirst" hidden><div class="field"><label for="fDays">Сколько дней с начала книги</label><input class="input" id="fDays" type="number" min="1" max="60" value="3"></div></div>
+              <div class="grid2" id="termDates" hidden><div class="field"><label for="fFrom">Действует с</label><input class="input" id="fFrom" type="date" value="2026-11-02"></div><div class="field"><label for="fTo">Действует по</label><input class="input" id="fTo" type="date" value="2026-11-30"></div></div>
+              <p class="hint" id="termHint"></p>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Код и погашение</h2><p>Как оператор поймёт, что купон настоящий. Способ выбирают, когда создают купон.</p></header>
+              <div class="note"><b>QR-код</b><span style="color:var(--colorTextSecondary)">Гость показывает QR, оператор гасит его в разделе «Погасить купон»</span></div>
+              <p class="hint">Гость увидит QR-код прямо в карточке купона и сможет открыть его крупно.</p>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Входит в книги</h2></header>
+              <div class="books"><a href="#template">Автопутешественники</a><a href="#template">Зима. Гид по специальным предложениям <span>· выключена</span></a></div>
+              <div class="split"><span id="delText">При удалении купон уберут из этих книг. Выданные купоны продолжат действовать.</span>
+                <div class="acts" id="delActs"><button class="btn danger" type="button" id="delBtn">Удалить купон</button></div>
+              </div>
+            </div>
+
+            <div class="card savebar">
+              <label class="switch"><input type="checkbox" id="fActive" checked><span class="tx"><b>Выпускать купон</b><span id="activeHint"></span></span></label>
+              <button class="btn primary lg" type="button" id="save">Сохранить</button>
+            </div>
+          </div>
+
+          <aside class="card preview" aria-label="Предпросмотр">
+            <header><h2>Как увидит гость</h2><p class="hint">Пример: 2 взрослых, ребёнок 7 лет</p></header>
+            <div class="stage"><article class="coupon" id="pv"></article></div>
+            <p class="hint" id="pvNote"></p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="snack" id="snack" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const seedOf = str => Array.from(str).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 100000, 7);
+  const asset = path => (window.__ASSETS && window.__ASSETS[path]) || path;
+  const plural = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? b : c); };
+  const svg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const ICON = {
+    copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'),
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg>',
+    more: svg('<path d="M6 12h.01M12 12h.01M18 12h.01" stroke-width="2.5"/>'),
+    x: svg('<path d="M7 7l10 10M17 7 7 17"/>'),
+    plus: svg('<path d="M6 12h12M12 6v12"/>'),
+    prev: svg('<path d="m15 6-6 6 6 6"/>'), next: svg('<path d="m9 6 6 6-6 6"/>'),
+    ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>',
+  };
+
+/*TYPOJS*/
+/*QRJS*/
+
+  // ---------- снекбар и копирование ----------
+  let snackT;
+  function snack(text, kind) {
+    const el = $('#snack');
+    el.className = 'snack' + (kind === false ? ' err' : kind === 'info' ? ' info' : '');
+    el.innerHTML = (kind === false || kind === 'info' ? ICON.warn : ICON.check) + '<span>' + nb(esc(text)) + '</span>';
+    el.hidden = false; clearTimeout(snackT); snackT = setTimeout(() => { el.hidden = true; }, 2600);
+  }
+  function copyText(text) {
+    const legacy = () => { try { const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; } };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => legacy()); } catch (e) {}
+    return Promise.resolve(legacy());
+  }
+
+  // ---------- меню ----------
+  const NAV = [
+    { items: [['Новая бронь', '<path d="M12 5v14M5 12h14"/>'], ['Выдать книгу', '<path d="M5 5h6a3 3 0 0 1 1 .2V19a3 3 0 0 0-1-.2H5zM19 5h-6a3 3 0 0 0-1 .2V19a3 3 0 0 1 1-.2h6z"/>'], ['Погасить купон', '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2M20 14v6h-4M14 20v-1"/>']] },
+    { title: 'Учёт', items: [['Выданные книги', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 9h6M9 13h6"/>'], ['Выданные купоны', '<path d="M4 9a2 2 0 0 0 0 6v3h16v-3a2 2 0 0 1 0-6V6H4z"/><path d="M14 6v12" stroke-dasharray="2 3"/>', 'issued']] },
+    { title: 'Мультикарты', items: [['Бронирования', '<path d="M5 20V5l2 1.5L9 5l3 1.5L15 5l2 1.5L19 5v15"/><path d="M9 11h6M9 15h4"/>'], ['Проверить карту', '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>']] },
+    { title: 'Шаблоны', items: [['Ски-пассы', '<path d="M4 7h16M7 7l1 4h8l1-4M8 11v6a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6"/>'], ['Шаблоны книг', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M10 4v7l2-1.5 2 1.5V4"/>'], ['Шаблоны купонов', '<circle cx="12" cy="12" r="8"/><path d="m9 15 6-6M9.5 9.5h.01M14.5 14.5h.01" stroke-width="2"/>', 'template']] },
+    { title: 'Управление', items: [['Объекты', '<path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6"/>'], ['Тарифы', '<path d="M9 20V5h4.5a3.5 3.5 0 0 1 0 7H7M7 16h7"/>'], ['Пользователи', '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5A6 6 0 0 1 21 19"/>'], ['Журнал действий', '<path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5M12 8v4l3 2"/>'], ['Журнал событий', '<path d="M6 4h9l3 3v13H6zM9 11h6M9 15h6"/>']] },
+  ];
+  $('#nav').innerHTML = NAV.map(g => '<div class="grp">' + (g.title ? '<div class="ttl">' + g.title + '</div>' : '') + g.items.map(([t, d, id]) => '<a href="#' + (id || '') + '"' + (id ? ' data-page="' + id + '"' : ' data-stub') + '>' + svg(d) + '<span>' + t + '</span></a>').join('') + '</div>').join('');
+  $('#nav').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; delete document.body.dataset.nav; if (a.hasAttribute('data-stub')) { e.preventDefault(); snack('Этот раздел в прототипе не собран', 'info'); } });
+  $('#burger').addEventListener('click', () => { document.body.dataset.nav = 'open'; });
+  document.addEventListener('click', e => { if (document.body.dataset.nav === 'open' && !e.target.closest('#side') && !e.target.closest('#burger')) delete document.body.dataset.nav; });
+  function route() {
+    const page = location.hash.replace('#', '') === 'template' ? 'template' : 'issued';
+    $('#pg-issued').hidden = page !== 'issued'; $('#pg-template').hidden = page !== 'template';
+    $$('#nav a[data-page]').forEach(a => { if (a.dataset.page === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    if (page === 'template') renderTemplate(); else renderIssued();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+
+  // ---------- «Выданные купоны» ----------
+  const ST = {
+    active: ['Действует', 'green', 'Действуют', '5 512'], pending: ['Не начался', 'blue', 'Не начались', '6'], redeemed: ['Погашен', 'grey', 'Погашены', '84 502'],
+    expired: ['Истёк', 'orange', 'Истекли', '2 101 957'], cancelled: ['Аннулирован', 'red', 'Аннулированы', '108 190'], unissued: ['Не выпущен', 'grey', 'Не выпущены', '1 306'],
+  };
+  const KANT = '1000 бонусов на услуги сервисного центра «Кант»', SPA = 'Посещение спа-комплексов', LUNCH = 'Ланчбокс в дорогу', PAN = 'Бесплатно: прогулочный билет «Панорама Красной Поляны»';
+  const ROWS = [
+    [SPA, 'Взрослый', '4410 2087', 'Орлова Мария', '64 681', 'active', 'до 11 ноября · выдан сегодня, 09:12'],
+    [LUNCH, 'На всех', '4410 2093', 'Орлова Мария', '64 681', 'active', 'до 11 ноября · выдан сегодня, 09:12'],
+    [PAN, 'Взрослый', '8120 4401 5530 1187 2046 9913', 'Соколов Дмитрий', '64 680', 'pending', 'с 8 ноября · выдан сегодня, 08:40'],
+    [KANT, 'На всех', '8446 2278', 'Каренина Анна', '64 679', 'redeemed', 'сегодня, 00:01 · Иванов Иван'],
+    [SPA, 'Детский', '6329 5690', 'Каренина Анна', '64 679', 'redeemed', 'вчера, 23:46 · Иванов Иван'],
+    [SPA, 'Взрослый', '3596 2790', 'Каренина Анна', '64 679', 'redeemed', 'вчера, 23:45 · Иванов Иван'],
+    [SPA, 'Взрослый', '6269 7448', 'Каренина Анна', '64 679', 'redeemed', 'вчера, 23:45 · Иванов Иван'],
+    [LUNCH, 'На всех', '6844 7847', 'Каренина Анна', '64 679', 'redeemed', 'вчера, 23:44 · Иванов Иван'],
+    [KANT, 'На всех', '0864 6923', 'Тестовый гость 2', '64 677', 'redeemed', 'вчера, 22:29 · Иванов Иван'],
+    [KANT, 'На всех', '9936 2886', 'Безухов Пётр', '64 676', 'cancelled', 'вчера, 22:27 · Иванов Иван'],
+    [SPA, 'Детский', '9115 8362', 'Тестовый гость 1', '64 675', 'redeemed', 'вчера, 22:19 · Иванов Иван'],
+    [SPA, 'Взрослый', '1149 5909', 'Тестовый гость 1', '64 675', 'redeemed', 'вчера, 22:17 · Иванов Иван'],
+    [LUNCH, 'На всех', '9404 5315', 'Тестовый гость 1', '64 675', 'expired', '2 ноября, 23:59'],
+    [KANT, 'На всех', '1711 7453', 'Болконский Андрей', '64 668', 'redeemed', '30 октября, 10:38 · Петров Пётр'],
+    ['Хаски центр', 'Детский', '26efe3b21', 'Онегин Евгений', '64 599', 'redeemed', '29 октября, 11:23 · Петров Пётр'],
+    [PAN, 'Взрослый', '3290 4048 4430 1410 4055 5987', 'Ростова Наталья', '64 621', 'redeemed', '29 октября, 09:01 · турникет'],
+    [PAN, 'Взрослый', '7573 1706 3792 9641 8464 0611', 'Ростова Наталья', '64 621', 'redeemed', '29 октября, 09:01 · турникет'],
+    [PAN, 'Детский', '5313 0106 0552 4621 7404 4631', 'Ростова Наталья', '64 621', 'redeemed', '29 октября, 09:00 · турникет'],
+    [PAN, 'Взрослый', '3799 4030 4888 1956 4157 8086', 'Ларина Татьяна', '64 554', 'redeemed', '28 октября, 11:39 · турникет'],
+    ['Хаски центр', 'Взрослый', '71ab09c44', 'Ларина Татьяна', '64 554', 'unissued', 'нет свободных кодов'],
+  ].map(r => ({ title: r[0], who: r[1], code: r[2], guest: r[3], book: r[4], st: r[5], when: r[6] }));
+  let status = 'all';
+  $('#fKind').innerHTML += Array.from(new Set(ROWS.map(r => r.title))).map(t => '<option>' + esc(t) + '</option>').join('');
+  function renderIssued() {
+    const chips = $('#statusChips'); chips.innerHTML = '';
+    const mk = (key, label, count) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(status === key)); b.innerHTML = esc(label) + ' <b class="nums">' + count + '</b>'; b.addEventListener('click', () => { status = key; renderIssued(); }); chips.appendChild(b); };
+    mk('all', 'Все', '2 304 247'); Object.keys(ST).forEach(k => mk(k, ST[k][2], ST[k][3]));
+    const q = $('#q').value.trim().toLowerCase().replace(/\s+/g, ''), kind = $('#fKind').value;
+    const list = ROWS.filter(r => (status === 'all' || r.st === status) && (!kind || r.title === kind) && (!q || (r.code + r.guest + r.book + r.title).toLowerCase().replace(/\s+/g, '').includes(q)));
+    $('#rows').innerHTML = list.map(r => '<tr>' +
+      '<td><div class="t1">' + esc(r.title) + '</div><div class="t2' + (r.who === 'Детский' ? ' kid' : '') + '">' + esc(r.who) + '</div></td>' +
+      '<td class="code"><span class="nums">' + esc(r.code) + '</span> <button class="icon-btn" type="button" data-copy="' + esc(r.code) + '" aria-label="Скопировать код ' + esc(r.code) + '" title="Скопировать">' + ICON.copy + '</button></td>' +
+      '<td><div>' + esc(r.guest) + '</div><div class="t2">№ ' + esc(r.book) + '</div></td>' +
+      '<td><span class="tag ' + ST[r.st][1] + '">' + ST[r.st][0] + '</span><div class="t2" style="margin-top:4px">' + esc(r.when) + '</div></td>' +
+      '<td><button class="icon-btn" type="button" aria-label="Действия: ' + esc(r.title) + '" title="Действия">' + ICON.more + '</button></td></tr>').join('');
+    $('#noRows').hidden = list.length > 0;
+    const filtered = q || kind, total = status === 'all' ? '2 304 247' : ST[status][3];
+    $('#range').textContent = list.length ? (filtered ? 'Найдено: ' + list.length : '1–' + list.length + ' из ' + total) : '';
+    $('#pages').innerHTML = filtered || !list.length ? '' : '<button type="button" aria-label="Предыдущая страница" disabled style="opacity:.4">' + ICON.prev + '</button>' + [1, 2, 3, 4, 5].map(n => '<button type="button"' + (n === 1 ? ' aria-current="page"' : '') + '>' + n + '</button>').join('') + '<span class="gap">…</span><button type="button">115 213</button><button type="button" aria-label="Следующая страница">' + ICON.next + '</button>';
+    typo($('#pg-issued'));
+  }
+  $('#q').addEventListener('input', renderIssued); $('#fKind').addEventListener('change', renderIssued);
+  $('#rows').addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (b) copyText(b.dataset.copy).then(ok => snack(ok ? 'Код скопирован' : 'Не удалось скопировать. Выделите код вручную', ok)); });
+  $('#export').addEventListener('click', () => snack('В прототипе экспорт не работает', 'info'));
+  document.addEventListener('keydown', e => { if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !$('#pg-issued').hidden) { e.preventDefault(); $('#q').focus(); } });
+
+  // ---------- «Шаблон купона» ----------
+  const CATS = ['Лыжи и сноуборд', 'SPA и бани', 'Прогулочные билеты', 'Проживание', 'Сочи Парк', 'Для всей семьи', 'Одежда и сувениры', 'Бесплатно'];
+  const T = {
+    name: '1000 бонусов на услуги сервисного центра «Кант»',
+    desc: 'Профессиональная мастерская готовит и ремонтирует горные лыжи и сноуборды любой сложности и работает круглосуточно — принесите инвентарь в любое удобное время. Бонусами можно оплатить до 20% стоимости услуги, срок действия бонусов — 14 дней с момента начисления. Для гостей в номере старше 16 лет; чтобы воспользоваться предложением, покажите QR-код на кассе. Телефон 8 862 225-70-90, доб. 113.',
+    where: 'Поляна 540, отель Marriott', url: 'https://krasnayapolyanaresort.ru/kant', regular: '', price: '1000 бонусов на покупку', cat: 'Лыжи и сноуборд', tags: ['16+'],
+    photos: ['img/marriott.jpg', 'img/lifts.jpg'], adults: 'none', kids: 'none', perBook: 1, term: 'book', active: true,
+  };
+  $('#fCat').innerHTML = CATS.map(c => '<option>' + c + '</option>').join('');
+  $$('[data-b]').forEach(el => { el.value = T[el.dataset.b]; el.addEventListener('input', () => { T[el.dataset.b] = el.value; renderTemplate(); }); });
+  $$('[data-seg]').forEach(seg => seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; T[seg.dataset.seg] = b.dataset.v; renderTemplate(); }));
+  $('#perMinus').addEventListener('click', () => { T.perBook = Math.max(0, T.perBook - 1); renderTemplate(); });
+  $('#perPlus').addEventListener('click', () => { T.perBook = Math.min(20, T.perBook + 1); renderTemplate(); });
+  $('#fTag').addEventListener('keydown', e => { const v = e.target.value.trim(); if (e.key === 'Enter' && v) { e.preventDefault(); if (!T.tags.includes(v)) T.tags.push(v); e.target.value = ''; renderTemplate(); } else if (e.key === 'Backspace' && !e.target.value && T.tags.length) { T.tags.pop(); renderTemplate(); } });
+  $('#tagsin').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (b) { T.tags.splice(+b.dataset.rm, 1); renderTemplate(); } else $('#fTag').focus(); });
+  $('#thumbs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (b) { T.photos.splice(+b.dataset.rm, 1); renderTemplate(); } });
+  $('#thumbs').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (!f || !/^image\//.test(f.type)) return; const rd = new FileReader(); rd.onload = () => { T.photos.push(rd.result); renderTemplate(); }; rd.readAsDataURL(f); });
+  $('#fActive').addEventListener('change', e => { T.active = e.target.checked; renderTemplate(); });
+  ['#fDays', '#fFrom', '#fTo'].forEach(s => $(s).addEventListener('input', renderTemplate));
+  $('#save').addEventListener('click', () => { if (!T.name.trim()) { snack('Укажите название купона', false); $('#fName').focus(); return; } if (!issued(2, 1)) { snack('Выберите, кому выдавать купон', false); return; } snack('Изменения сохранены'); });
+  $('#delActs').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'delBtn') { $('#delText').textContent = 'Удалить купон из двух книг? Это нельзя отменить.'; $('#delActs').innerHTML = '<button class="btn" type="button" data-no>Не удалять</button><button class="btn primary" type="button" data-yes>Удалить</button>'; typo($('#delText')); }
+    else { if (b.hasAttribute('data-yes')) snack('В прототипе купон не удаляется', 'info'); $('#delText').textContent = 'При удалении купон уберут из этих книг. Выданные купоны продолжат действовать.'; $('#delActs').innerHTML = '<button class="btn danger" type="button" id="delBtn">Удалить купон</button>'; typo($('#delText')); }
+  });
+  // сколько купонов получит семья: adults взрослых, kids детей
+  const issued = (adults, kids) => (T.adults === 'each' ? adults : T.adults === 'one' ? 1 : 0) + (T.kids === 'each' ? kids : T.kids === 'one' && kids ? 1 : 0) + T.perBook;
+  const coupons = n => n + ' ' + plural(n, 'купон', 'купона', 'купонов');
+  function renderTemplate() {
+    $('#tTitle').textContent = T.name.trim() || 'Новый купон';
+    $$('[data-seg]').forEach(seg => $$('button', seg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === T[seg.dataset.seg]))));
+    $('#perOut').textContent = T.perBook + ' шт.'; $('#perMinus').disabled = T.perBook === 0;
+    // метки и фото
+    $$('.pill', $('#tagsin')).forEach(p => p.remove());
+    T.tags.forEach((t, i) => { const p = document.createElement('span'); p.className = 'pill'; p.innerHTML = esc(t) + '<button type="button" data-rm="' + i + '" aria-label="Убрать метку ' + esc(t) + '">' + ICON.x + '</button>'; $('#tagsin').insertBefore(p, $('#fTag')); });
+    $('#thumbs').innerHTML = T.photos.map((p, i) => '<div class="th"><img src="' + asset(p) + '" alt=""><button type="button" data-rm="' + i + '" aria-label="Убрать фото ' + (i + 1) + '">' + ICON.x + '</button></div>').join('') +
+      '<label class="add">' + ICON.plus + '<span>Добавить фото</span><input type="file" accept="image/*"></label>';
+    // правила выдачи
+    const parts = [];
+    if (T.adults !== 'none') parts.push(T.adults === 'each' ? 'каждому взрослому' : 'одному взрослому');
+    if (T.kids !== 'none') parts.push(T.kids === 'each' ? 'каждому ребёнку' : 'одному ребёнку');
+    if (T.perBook) parts.push((T.perBook === 1 ? 'один' : T.perBook) + ' на всю книгу');
+    const note = $('#ruleNote'), none = !parts.length;
+    note.className = 'note' + (none ? ' warn' : '');
+    const head = parts.join(', ');
+    note.innerHTML = none ? '<b>Купон никому не выдаётся.</b><span>Выберите хотя бы одно правило.</span>' :
+      '<b>' + esc(head.charAt(0).toUpperCase() + head.slice(1)) + '.</b><ul><li>Пара без детей: ' + coupons(issued(2, 0)) + '</li><li>Двое взрослых и ребёнок 7 лет: ' + coupons(issued(2, 1)) + '</li><li>Двое взрослых, дети 4 и 12 лет: ' + coupons(issued(2, 2)) + '</li></ul>';
+    // срок
+    $('#termFirst').hidden = T.term !== 'first'; $('#termDates').hidden = T.term !== 'dates';
+    const days = Math.max(1, +$('#fDays').value || 1), fmt = v => { const d = new Date(v); return isNaN(d) ? '…' : d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }); };
+    $('#termHint').textContent = T.term === 'book' ? 'Купон действует, пока действует книга.' : T.term === 'first' ? 'Купон действует первые ' + days + ' ' + plural(days, 'день', 'дня', 'дней') + ' книги.' : 'Купон действует с ' + fmt($('#fFrom').value) + ' по ' + fmt($('#fTo').value) + ', но не дольше книги.';
+    $('#activeHint').textContent = T.active ? 'Купон есть в новых книгах.' : 'В новые книги купон не попадает.';
+    // предпросмотр: семья из двух взрослых и ребёнка
+    const n = issued(2, 1), shown = Math.min(n, 6), shared = T.adults === 'none' && T.kids === 'none';
+    const codes = Array.from({ length: shown }, (_, i) => { const s = String(84462278 + i * 10391); return s.slice(0, 4) + ' ' + s.slice(4); });
+    const free = /бесплатно/i.test(T.price), ph = T.photos;
+    $('#pv').className = 'coupon' + (T.active && n ? '' : ' off');
+    $('#pv').innerHTML =
+      '<div class="photos">' + (ph.length ? '<img src="' + asset(ph[0]) + '" alt="">' : '<span>Нет фото</span>') +
+        '<div class="tags">' + (T.price.trim() ? '<span class="tag ' + (free ? 'green' : 'blue') + '">' + esc(T.price) + '</span>' : '') + T.tags.map(t => '<span class="tag plain">' + esc(t) + '</span>').join('') + '</div>' +
+        (ph.length > 1 ? '<div class="dots">' + ph.map((_, i) => '<i class="' + (i ? '' : 'on') + '"></i>').join('') + '</div>' : '') + '</div>' +
+      '<div class="txt"><h3>' + esc(T.name.trim() || 'Название купона') + '</h3>' + (T.desc.trim() ? '<p class="short">' + esc(T.desc) + '</p>' : '') +
+        (T.where.trim() ? '<div class="kv"><span class="lbl">Где воспользоваться</span><span>' + (/^https?:\/\/\S+$/.test(T.url.trim()) ? '<a href="' + esc(T.url.trim()) + '" target="_blank" rel="noopener">' + esc(T.where) + ICON.ext + '</a>' : esc(T.where)) + '</span></div>' : '') + '</div>' +
+      (n ? '<div class="slider">' + codes.map(c => '<div class="tile">' + qrSvg(c) + '<div class="n">' + c + '</div></div>').join('') + '</div>' +
+        '<div class="squares"><span class="sq">' + '<i></i>'.repeat(n) + '</span><span>' + n + ' из ' + n + ' доступно · ' + (shared ? (n === 1 ? 'один код на всю семью' : 'коды на всю семью') : 'у каждого гостя свой код') + '</span></div>' : '');
+    $('#pvNote').textContent = !T.active ? 'Купон выключен: в новые книги он не попадёт.' : n ? 'Эта семья получит ' + coupons(n) + '.' : 'Эта семья не получит купон.';
+    typo($('#pg-template'));
+  }
+
+  route();
+})();
+</script>
