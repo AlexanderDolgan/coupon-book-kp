@@ -198,6 +198,69 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 .coupon .squares .sq { display: flex; gap: 4px; flex-wrap: wrap; }
 .coupon .squares i { width: 12px; height: 12px; border-radius: var(--radiusSM); background: var(--colorSuccess); }
 
+/* ---------- «Шаблон книги» ---------- */
+.cover-ed { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: var(--space); align-items: start; }
+.cover-ed .ph { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radiusLG); overflow: clip; background: var(--colorBgContainerSecondary); display: grid; place-items: center; color: var(--colorTextTertiary); border: 1px dashed transparent; }
+.cover-ed .ph.empty { border-color: var(--colorBorder); }
+.cover-ed .ph.over { border-color: var(--colorPrimary); background: var(--colorPrimaryBg); }
+.cover-ed .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover-ed .side-txt { display: grid; gap: 12px; justify-items: start; }
+.cover-ed .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.cover-ed input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.picked { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border-radius: var(--radiusL); background: var(--colorBgContainerSecondary); min-height: 56px; align-items: center; }
+.picked .pill { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; padding: 4px 4px 4px 12px; border-radius: 999px; background: var(--colorBgContainer); box-shadow: var(--boxShadowTertiary); }
+.picked .pill button { width: 24px; height: 24px; border: 0; border-radius: 50%; background: transparent; color: var(--colorTextSecondary); display: grid; place-items: center; padding: 0; flex: none; }
+.picked .pill button:hover { background: var(--colorFillQuaternary); color: var(--colorText); }
+.picked .pill svg { width: 14px; height: 14px; }
+.pick-tools { display: grid; grid-template-columns: minmax(0, 1fr) 224px; gap: 12px; }
+.pick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pick { display: flex; gap: 12px; align-items: flex-start; padding: 12px var(--space); border-radius: var(--radiusL); background: var(--colorBgContainerSecondary); border: 1px solid transparent; cursor: pointer; }
+.pick:hover { border-color: var(--colorBorderSecondary); }
+.pick input { appearance: none; flex: none; width: 20px; height: 20px; margin: 2px 0 0; border-radius: 6px; border: 1px solid var(--colorBorder); background: var(--colorBgContainer); display: grid; place-items: center; cursor: pointer; }
+.pick input:checked { background: var(--colorPrimary); border-color: var(--colorPrimary); }
+.pick input:checked::after { content: ""; width: 10px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+.pick:has(input:checked) { background: var(--colorPrimaryBg); border-color: var(--colorPrimaryBorder); }
+.pick .tx { display: grid; gap: 2px; min-width: 0; }
+.pick .tx b { font-size: 16px; line-height: 24px; font-weight: 500; }
+.pick .tx span { color: var(--colorTextSecondary); }
+.pick .tx .warn { color: #ad6800; }
+.inline-pager { display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; color: var(--colorTextSecondary); }
+.inline-pager .pages { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inline-pager button, .inline-pager .gap { min-width: 40px; height: 40px; padding: 0 12px; border-radius: 999px; border: 0; background: transparent; color: var(--colorText); display: inline-grid; place-items: center; }
+.inline-pager button:hover { background: var(--colorBgContainerSecondary); }
+.inline-pager button[aria-current="page"] { background: var(--chipBgActive); color: var(--chipTextActive); }
+.inline-pager button svg { width: 18px; height: 18px; }
+.objs { display: grid; gap: 8px; }
+.objs .cap { color: var(--colorTextSecondary); }
+.objs .cap button { border: 0; background: transparent; padding: 0; color: var(--colorPrimaryActive); font-weight: 500; }
+.objs .list { display: flex; flex-wrap: wrap; gap: 8px; }
+.objs .list button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--colorBorderSecondary); background: var(--colorBgContainer); }
+.objs .list button svg { width: 16px; height: 16px; color: var(--colorTextTertiary); }
+.objs .list.on button { background: var(--colorPrimaryBg); border-color: transparent; font-weight: 500; }
+.objs .list.on button svg { color: var(--colorPrimary); }
+.objs .list button:hover { border-color: var(--colorText); }
+.lbl-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lbl-row button { border: 0; background: transparent; padding: 0; color: var(--colorPrimary); font-weight: 500; }
+.toggles { display: grid; gap: var(--space); }
+.guest { display: grid; gap: 12px; max-height: min(720px, calc(100dvh - 260px)); overflow-y: auto; scrollbar-width: thin; border-radius: var(--radiusLG); }
+.g-hero { background: var(--colorBgContainer); border-radius: var(--radiusXL); padding: 8px; display: grid; }
+.g-hero .cv { aspect-ratio: 4 / 3; border-radius: var(--radiusLG); overflow: clip; background: var(--colorBgContainerSecondary); display: grid; place-items: center; color: var(--colorTextTertiary); }
+.g-hero .cv img { width: 100%; height: 100%; object-fit: cover; }
+.g-hero .bd { padding: 12px 8px 8px; display: grid; gap: 8px; justify-items: start; }
+.g-hero h3 { font-size: 20px; line-height: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; overflow-wrap: anywhere; }
+.g-hero .facts { color: var(--colorTextSecondary); }
+.g-hero .facts b { color: var(--colorText); font-weight: 500; }
+.g-hero .desc { color: var(--colorTextSecondary); }
+.g-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.g-chips::-webkit-scrollbar { display: none; }
+.g-chips span { flex: none; height: 40px; padding: 0 16px; border-radius: 999px; background: var(--chipBg); color: var(--chipText); display: inline-flex; align-items: center; }
+.g-chips span.on { background: var(--chipBgActive); color: var(--chipTextActive); }
+.sms-view { display: grid; gap: 8px; padding: var(--space); border-radius: var(--radiusLG); background: var(--colorBgLayout); }
+.sms-view .from { color: var(--colorTextTertiary); text-align: center; }
+.sms-view .bubble { justify-self: start; max-width: 92%; padding: 10px 14px; border-radius: 18px 18px 18px 4px; background: var(--colorBgContainer); overflow-wrap: anywhere; }
+.sms-view .bubble a { color: var(--colorInfo); }
+@media (max-width: 640px) { .cover-ed, .pick-tools, .pick-grid { grid-template-columns: minmax(0, 1fr); } }
+
 /* ---------- снекбар ---------- */
 .snack { position: fixed; left: 50%; bottom: calc(var(--spaceLG) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 8px; width: max-content; max-width: calc(100% - 32px);
   padding: 12px var(--space); border-radius: var(--radiusL); color: var(--colorText); background: var(--colorSuccessBg); border: 1px solid var(--colorSuccessBorder); box-shadow: var(--boxShadow); animation: snack-in .2s ease-out; }
@@ -335,7 +398,7 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 
             <div class="card sec">
               <header><h2>Входит в книги</h2></header>
-              <div class="books"><a href="#template">Автопутешественники</a><a href="#template">Зима. Гид по специальным предложениям <span>· выключена</span></a></div>
+              <div class="books"><a href="#book">Автопутешественники</a><a href="#template">Зима. Гид по специальным предложениям <span>· выключена</span></a></div>
               <div class="split"><span id="delText">При удалении купон уберут из этих книг. Выданные купоны продолжат действовать.</span>
                 <div class="acts" id="delActs"><button class="btn danger" type="button" id="delBtn">Удалить купон</button></div>
               </div>
@@ -351,6 +414,89 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
             <header><h2>Как увидит гость</h2><p class="hint">Пример: 2 взрослых, ребёнок 7 лет</p></header>
             <div class="stage"><article class="coupon" id="pv"></article></div>
             <p class="hint" id="pvNote"></p>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <!-- ===== Шаблон книги ===== -->
+    <section id="pg-book" hidden>
+      <div class="main" style="padding-top:0">
+        <div class="head">
+          <div class="t">
+            <a class="back" href="#book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Шаблоны книг</a>
+            <h1 id="bTitle"></h1>
+            <p>Изменения касаются книг, которые выдадут после сохранения. Выданные книги не меняются.</p>
+          </div>
+          <button class="btn" type="button" id="bCopy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Создать копию</button>
+        </div>
+        <div class="form">
+          <div class="col">
+            <div class="card sec">
+              <header><h2>Основное</h2><p>Обложку, название и описание гость видит в шапке книги, над купонами.</p></header>
+              <div class="field"><span class="lbl">Обложка <span class="req">*</span></span>
+                <div class="cover-ed">
+                  <div class="ph" id="bCoverBox"></div>
+                  <div class="side-txt">
+                    <p class="hint">Гость видит обложку в пропорции 4:3. Перетащите новое фото на обложку или выберите файл. JPG, PNG или WebP, от 1440 px в ширину, до 10 МБ.</p>
+                    <div class="acts"><label class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 16 4-4 4 4 3-3 5 5"/><path d="M15 9h.01" stroke-width="2.5"/></svg>Заменить фото<input type="file" id="bCoverFile" accept="image/*"></label><button class="btn" type="button" id="bCoverRm">Убрать</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="field"><label for="bName">Название <span class="req">*</span></label><input class="input" id="bName"></div>
+              <div class="field"><label for="bDesc">Описание</label><textarea class="textarea" id="bDesc" style="min-height:88px" placeholder="Для кого или для чего эта книга"></textarea></div>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Купоны в книге <span class="req">*</span></h2><p>Сколько купонов получит гость, решают <a href="#template" style="color:inherit">правила каждого купона</a>.</p></header>
+              <div class="picked" id="bPicked"></div>
+              <div class="pick-tools">
+                <div class="with-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input class="input" id="bQ" type="search" placeholder="Найти купон…" aria-label="Поиск купона"></div>
+                <select class="select" id="bCat" aria-label="Категория"><option value="">Все категории</option></select>
+              </div>
+              <div class="pick-grid" id="bGrid"></div>
+              <div class="inline-pager"><span id="bCount"></span><div class="pages" id="bPages"></div></div>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Где выдают <span class="req">*</span></h2><p>Сотрудники этих объектов увидят шаблон в форме выдачи.</p></header>
+              <div class="objs">
+                <div class="cap"><span id="bOnCap"></span> · <button type="button" id="bOffAll">Снять все</button></div>
+                <div class="list on" id="bOn"></div>
+              </div>
+              <div class="objs" id="bOffWrap">
+                <div class="cap">Не выдают · нажмите, чтобы добавить · <button type="button" id="bOnAll">Добавить все</button></div>
+                <div class="list" id="bOff"></div>
+              </div>
+            </div>
+
+            <div class="card sec">
+              <header><h2>СМС гостю</h2><p>Уходит сразу после выдачи. {link} заменится ссылкой на книгу.</p></header>
+              <div class="field">
+                <div class="lbl-row"><label for="bSms" style="font-weight:500">Текст сообщения <span class="req">*</span></label><button type="button" id="bLink">Вставить ссылку</button></div>
+                <textarea class="textarea" id="bSms" style="min-height:88px"></textarea>
+                <p class="hint" id="bSmsHint" style="margin:0"></p>
+              </div>
+            </div>
+
+            <div class="card sec toggles">
+              <label class="switch"><input type="checkbox" id="bActive" checked><span class="tx"><b>Выдавать книги по этому шаблону</b><span id="bActiveHint"></span></span></label>
+              <label class="switch"><input type="checkbox" id="bSelf" checked><span class="tx"><b>Гость может выпустить книгу сам</b><span>Сейчас выдача гостям выключена: её включают в меню аккаунта, строка «Выдача гостям».</span></span></label>
+            </div>
+
+            <div class="card sec">
+              <header><h2>Удаление</h2></header>
+              <div class="split" style="padding-top:0;border-top:0"><span>Удалить нельзя: по шаблону уже выдали 4 234 книги. Выключите выдачу, если шаблон больше не нужен.</span><button class="btn" type="button" disabled style="opacity:.5;cursor:default">Удалить шаблон</button></div>
+            </div>
+
+            <div class="card savebar" style="justify-content:flex-end"><button class="btn primary lg" type="button" id="bSave">Сохранить</button></div>
+          </div>
+
+          <aside class="card preview" aria-label="Предпросмотр">
+            <header><h2>Как увидит гость</h2></header>
+            <div class="seg" id="bTab" role="group" aria-label="Что показать"><button type="button" data-v="book">Книга</button><button type="button" data-v="sms">СМС</button></div>
+            <p class="hint" style="margin:0">Пример: 2 взрослых, ребёнок 7 лет · 22–26 октября</p>
+            <div class="stage"><div class="guest" id="bView"></div></div>
+            <p class="hint" id="bNote" style="margin:0"></p>
           </aside>
         </div>
       </div>
@@ -402,7 +548,7 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
     { items: [['Новая бронь', '<path d="M12 5v14M5 12h14"/>'], ['Выдать книгу', '<path d="M5 5h6a3 3 0 0 1 1 .2V19a3 3 0 0 0-1-.2H5zM19 5h-6a3 3 0 0 0-1 .2V19a3 3 0 0 1 1-.2h6z"/>'], ['Погасить купон', '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2M20 14v6h-4M14 20v-1"/>']] },
     { title: 'Учёт', items: [['Выданные книги', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 9h6M9 13h6"/>'], ['Выданные купоны', '<path d="M4 9a2 2 0 0 0 0 6v3h16v-3a2 2 0 0 1 0-6V6H4z"/><path d="M14 6v12" stroke-dasharray="2 3"/>', 'issued']] },
     { title: 'Мультикарты', items: [['Бронирования', '<path d="M5 20V5l2 1.5L9 5l3 1.5L15 5l2 1.5L19 5v15"/><path d="M9 11h6M9 15h4"/>'], ['Проверить карту', '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>']] },
-    { title: 'Шаблоны', items: [['Ски-пассы', '<path d="M4 7h16M7 7l1 4h8l1-4M8 11v6a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6"/>'], ['Шаблоны книг', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M10 4v7l2-1.5 2 1.5V4"/>'], ['Шаблоны купонов', '<circle cx="12" cy="12" r="8"/><path d="m9 15 6-6M9.5 9.5h.01M14.5 14.5h.01" stroke-width="2"/>', 'template']] },
+    { title: 'Шаблоны', items: [['Ски-пассы', '<path d="M4 7h16M7 7l1 4h8l1-4M8 11v6a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6"/>'], ['Шаблоны книг', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M10 4v7l2-1.5 2 1.5V4"/>', 'book'], ['Шаблоны купонов', '<circle cx="12" cy="12" r="8"/><path d="m9 15 6-6M9.5 9.5h.01M14.5 14.5h.01" stroke-width="2"/>', 'template']] },
     { title: 'Управление', items: [['Объекты', '<path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6"/>'], ['Тарифы', '<path d="M9 20V5h4.5a3.5 3.5 0 0 1 0 7H7M7 16h7"/>'], ['Пользователи', '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5A6 6 0 0 1 21 19"/>'], ['Журнал действий', '<path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5M12 8v4l3 2"/>'], ['Журнал событий', '<path d="M6 4h9l3 3v13H6zM9 11h6M9 15h6"/>']] },
   ];
   $('#nav').innerHTML = NAV.map(g => '<div class="grp">' + (g.title ? '<div class="ttl">' + g.title + '</div>' : '') + g.items.map(([t, d, id]) => '<a href="#' + (id || '') + '"' + (id ? ' data-page="' + id + '"' : ' data-stub') + '>' + svg(d) + '<span>' + t + '</span></a>').join('') + '</div>').join('');
@@ -410,10 +556,10 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
   $('#burger').addEventListener('click', () => { document.body.dataset.nav = 'open'; });
   document.addEventListener('click', e => { if (document.body.dataset.nav === 'open' && !e.target.closest('#side') && !e.target.closest('#burger')) delete document.body.dataset.nav; });
   function route() {
-    const page = location.hash.replace('#', '') === 'template' ? 'template' : 'issued';
-    $('#pg-issued').hidden = page !== 'issued'; $('#pg-template').hidden = page !== 'template';
+    const h = location.hash.replace('#', ''), page = h === 'template' || h === 'book' ? h : 'issued';
+    ['issued', 'template', 'book'].forEach(pg => { $('#pg-' + pg).hidden = pg !== page; });
     $$('#nav a[data-page]').forEach(a => { if (a.dataset.page === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    if (page === 'template') renderTemplate(); else renderIssued();
+    if (page === 'template') renderTemplate(); else if (page === 'book') renderBook(); else renderIssued();
     window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
@@ -538,6 +684,108 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
         '<div class="squares"><span class="sq">' + '<i></i>'.repeat(n) + '</span><span>' + n + ' из ' + n + ' доступно · ' + (shared ? (n === 1 ? 'один код на всю семью' : 'коды на всю семью') : 'у каждого гостя свой код') + '</span></div>' : '');
     $('#pvNote').textContent = !T.active ? 'Купон выключен: в новые книги он не попадёт.' : n ? 'Эта семья получит ' + coupons(n) + '.' : 'Эта семья не получит купон.';
     typo($('#pg-template'));
+  }
+
+  // ---------- «Шаблон книги» ----------
+  // правило выдачи купона: a — взрослым, k — детям ('none' | 'one' | 'each'), per — на всю книгу
+  const CAT = [
+    { id: 'spa', title: 'Посещение спа-комплексов', cat: 'SPA и бани', a: 'each', k: 'each', per: 0, rule: 'Каждому взрослому, каждому ребёнку', price: 'Скидка 30%', photo: 'img/spa.jpg', short: 'Скидка действует на посещение спа отелей курорта.', where: 'Спа отелей «Марриотт», «Новотель Резорт» и «Панорама»' },
+    { id: 'park', title: 'Парковка', cat: 'Бесплатно', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: 'Бесплатно', photo: 'img/ibis.jpg', short: 'Бесплатно для проживающих.', where: 'Парковки Поляна 540 и Поляна 960' },
+    { id: 'lunch', title: 'Ланчбокс в дорогу', cat: 'Бесплатно', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: 'Бесплатно', photo: 'img/apresski.jpg', short: 'Если выезжаете до завтрака.', where: 'Ресепшен отеля проживания, накануне до 20:00' },
+    { id: 'kant', title: '1000 бонусов на услуги сервисного центра «Кант»', cat: 'Лыжи и сноуборд', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: '1000 бонусов на покупку', photo: 'img/marriott.jpg', short: 'Подготовка и ремонт лыж и сноубордов.', where: 'Поляна 540, отель Marriott' },
+    { id: 'pan', title: 'Бесплатно: прогулочный билет «Панорама Красной Поляны» Взрослый', cat: 'Прогулочные билеты', a: 'each', k: 'none', per: 0, rule: 'Каждому взрослому', price: 'Бесплатно', photo: 'img/lifts.jpg', short: 'Канатные дороги курорта.', where: 'Кассы канатных дорог на Поляне 540 и Поляне 960' },
+    { id: 'bike', title: '2 часа по цене 1: прокат городского велосипеда', cat: 'Для всей семьи', a: 'each', k: 'each', per: 0, rule: 'Каждому взрослому, каждому ребёнку от 4 лет', price: 'от 150 ₽', photo: 'img/valley.jpg', short: 'Второй час проката в подарок.', where: 'Прокат на Поляне 540' },
+    { id: 'wheel', title: '20% на колесо обозрения от Сочи Парка', cat: 'Сочи Парк', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: 'от 520 ₽', photo: 'img/park.jpg', short: 'Скидка на билет на колесо обозрения.', where: 'Кассы Сочи Парка, Сириус' },
+    { id: 'sochi', title: '20% скидка на посещение Сочи Парка', cat: 'Сочи Парк', a: 'each', k: 'each', per: 0, rule: 'Каждому взрослому, каждому ребёнку от 4 лет', price: '2 400 ₽ с 01.10 по 15.11; 1 750 ₽ с 16.11 по 30.11', photo: 'img/park.jpg', short: 'Билет на 1 день, все шоу включены.', where: 'Кассы Сочи Парка, Сириус' },
+    { id: 'stay', title: '20% скидка на размещение в отелях и апартаментах курорта', cat: 'Проживание', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: 'Скидка 20%', note: 'Только с 26 мая по 30 ноября', photo: 'img/stay.jpg', short: 'Отели и апартаменты курорта.', where: 'Отели и апартаменты курорта' },
+    { id: 'shop', title: '2000 баллов на покупки в магазине одежды', cat: 'Одежда и сувениры', a: 'none', k: 'none', per: 1, rule: 'Один на всю книгу', price: '2000 баллов', photo: 'img/apart.jpg', short: 'Баллы на покупки в магазине курорта.', where: 'Магазин одежды, Поляна 540' },
+    { id: 'aqua', title: '50% скидка на посещение Аквапарка + дети до 12 включительно бесплатно', cat: 'Для всей семьи', a: 'each', k: 'none', per: 0, rule: 'Каждому взрослому, каждому ребёнку от 13 лет', price: 'Скидка 50%, дети до 12 лет бесплатно', photo: 'img/valley.jpg', short: 'Аквапарк курорта.', where: 'Аквапарк, Поляна 540' },
+  ];
+  const OBJS = ['Апартаменты 540', 'Апартаменты 960', 'Долина 960', 'Ибис Стайлс', 'Кортъярд', 'Марриотт', 'Мовенпик Красная Поляна', 'Новотель 4*', 'Новотель Резорт', 'Панорама by Mercure', 'Тестовый отель', 'Rixos', 'Медицинский центр 960', 'Фест Игра'];
+  const B = { name: 'Автопутешественники', desc: '', cover: 'img/cover-auto.jpg', picked: ['spa', 'park', 'lunch', 'kant', 'pan'], on: new Set(OBJS.slice(0, 12)), sms: 'Ваша купонная книга Красной Поляны: {link}', active: true, tab: 'book' };
+  const byId = id => CAT.find(c => c.id === id);
+  const forFamily = (c, adults, kids) => (c.a === 'each' ? adults : c.a === 'one' ? 1 : 0) + (c.k === 'each' ? kids : c.k === 'one' && kids ? 1 : 0) + c.per;
+  $('#bCat').innerHTML += Array.from(new Set(CAT.map(c => c.cat))).map(c => '<option>' + esc(c) + '</option>').join('');
+  $('#bName').value = B.name; $('#bDesc').value = B.desc; $('#bSms').value = B.sms;
+  $('#bName').addEventListener('input', e => { B.name = e.target.value; renderBook(); });
+  $('#bDesc').addEventListener('input', e => { B.desc = e.target.value; renderBook(); });
+  $('#bSms').addEventListener('input', e => { B.sms = e.target.value; renderBook(); });
+  $('#bLink').addEventListener('click', () => { const t = $('#bSms'); if (t.value.includes('{link}')) { snack('Ссылка уже есть в тексте', 'info'); return; } t.value = (t.value.trim() + ' {link}').trim(); B.sms = t.value; renderBook(); });
+  $('#bQ').addEventListener('input', renderBook); $('#bCat').addEventListener('change', renderBook);
+  $('#bGrid').addEventListener('change', e => { const id = e.target.value; if (e.target.checked) B.picked.push(id); else B.picked = B.picked.filter(x => x !== id); renderBook(); });
+  $('#bPicked').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (b) { B.picked = B.picked.filter(x => x !== b.dataset.rm); renderBook(); } });
+  $('#bOn').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { B.on.delete(b.dataset.o); renderBook(); } });
+  $('#bOff').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { B.on.add(b.dataset.o); renderBook(); } });
+  $('#bOffAll').addEventListener('click', () => { B.on.clear(); renderBook(); });
+  $('#bOnAll').addEventListener('click', () => { OBJS.forEach(o => B.on.add(o)); renderBook(); });
+  $('#bTab').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { B.tab = b.dataset.v; renderBook(); } });
+  $('#bActive').addEventListener('change', e => { B.active = e.target.checked; renderBook(); });
+  $('#bCopy').addEventListener('click', () => snack('В прототипе копия не создаётся', 'info'));
+  const setCover = file => { if (!file || !/^image\//.test(file.type)) { snack('Нужен файл изображения: JPG, PNG или WebP', false); return; } const rd = new FileReader(); rd.onload = () => { B.cover = rd.result; renderBook(); }; rd.readAsDataURL(file); };
+  $('#bCoverFile').addEventListener('change', e => setCover(e.target.files && e.target.files[0]));
+  $('#bCoverRm').addEventListener('click', () => { B.cover = ''; renderBook(); });
+  (box => {
+    box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('over'); });
+    box.addEventListener('dragleave', () => box.classList.remove('over'));
+    box.addEventListener('drop', e => { e.preventDefault(); box.classList.remove('over'); setCover(e.dataTransfer.files && e.dataTransfer.files[0]); });
+  })($('#bCoverBox'));
+  $('#bSave').addEventListener('click', () => {
+    if (!B.name.trim()) { snack('Укажите название книги', false); $('#bName').focus(); return; }
+    if (!B.cover) { snack('Добавьте обложку книги', false); return; }
+    if (B.picked.length < 2) { snack('В книге должно быть хотя бы два купона', false); return; }
+    if (!B.on.size) { snack('Выберите, где выдают книгу', false); return; }
+    if (!B.sms.includes('{link}')) { snack('В тексте СМС нет ссылки на книгу', false); $('#bSms').focus(); return; }
+    snack('Изменения сохранены');
+  });
+  const pagesHtml = last => '<button type="button" aria-label="Предыдущая страница" disabled style="opacity:.4">' + ICON.prev + '</button>' + [1, 2, 3, 4, 5].map(n => '<button type="button"' + (n === 1 ? ' aria-current="page"' : '') + '>' + n + '</button>').join('') + '<span class="gap">…</span><button type="button">' + last + '</button><button type="button" aria-label="Следующая страница">' + ICON.next + '</button>';
+  // карточка купона, как в книге гостя
+  function guestCard(c, n) {
+    const shown = Math.min(n, 3), shared = c.a === 'none' && c.k === 'none';
+    const codes = Array.from({ length: shown }, (_, i) => { const v = String(10000000 + (seedOf(c.id) * 7919 + i * 10391) % 89999999); return v.slice(0, 4) + ' ' + v.slice(4); });
+    return '<article class="coupon"><div class="photos"><img src="' + asset(c.photo) + '" alt="" loading="lazy"><div class="tags"><span class="tag ' + (/бесплатно/i.test(c.price) ? 'green' : 'blue') + '">' + esc(c.price) + '</span></div></div>' +
+      '<div class="txt"><h3>' + esc(c.title) + '</h3><p class="short">' + esc(c.short) + '</p><div class="kv"><span class="lbl">Где воспользоваться</span><span>' + esc(c.where) + '</span></div></div>' +
+      '<div class="slider">' + codes.map(code => '<div class="tile">' + qrSvg(code) + '<div class="n">' + code + '</div></div>').join('') + '</div>' +
+      '<div class="squares"><span class="sq">' + '<i></i>'.repeat(n) + '</span><span>' + n + ' из ' + n + ' доступно · ' + (shared ? (n === 1 ? 'один код на всю семью' : 'коды на всю семью') : 'у каждого гостя свой код') + '</span></div></article>';
+  }
+  function renderBook() {
+    $('#bTitle').textContent = B.name.trim() || 'Новая книга';
+    const box = $('#bCoverBox'); box.className = 'ph' + (B.cover ? '' : ' empty'); box.innerHTML = B.cover ? '<img src="' + asset(B.cover) + '" alt="Обложка книги">' : '<span>Перетащите фото сюда</span>';
+    $('#bCoverRm').hidden = !B.cover;
+    // выбранные купоны и каталог
+    $('#bPicked').innerHTML = B.picked.length ? B.picked.map(id => '<span class="pill">' + esc(byId(id).title) + '<button type="button" data-rm="' + id + '" aria-label="Убрать «' + esc(byId(id).title) + '»">' + ICON.x + '</button></span>').join('') : '<span class="hint">Отметьте купоны в списке ниже</span>';
+    const q = $('#bQ').value.trim().toLowerCase(), cat = $('#bCat').value;
+    const list = CAT.filter(c => (!cat || c.cat === cat) && (!q || c.title.toLowerCase().includes(q)));
+    $('#bGrid').innerHTML = list.map(c => '<label class="pick"><input type="checkbox" value="' + c.id + '"' + (B.picked.includes(c.id) ? ' checked' : '') + '><span class="tx"><b>' + esc(c.title) + '</b><span>' + esc(c.rule) + '. ' + esc(c.price) + '</span>' + (c.note ? '<span class="warn">' + esc(c.note) + '</span>' : '') + '</span></label>').join('') || '<div class="empty" style="grid-column:1/-1">Таких купонов нет</div>';
+    const filtered = q || cat;
+    $('#bCount').textContent = 'В книге ' + B.picked.length + ' из 739' + (filtered ? ' · найдено ' + list.length : ' · стр. 1 из 93');
+    $('#bPages').innerHTML = filtered ? '' : pagesHtml(93);
+    // объекты
+    const on = OBJS.filter(o => B.on.has(o)), off = OBJS.filter(o => !B.on.has(o));
+    $('#bOnCap').textContent = 'Выдают · ' + on.length + ' из ' + OBJS.length;
+    $('#bOffAll').hidden = !on.length;
+    $('#bOn').innerHTML = on.map(o => '<button type="button" data-o="' + esc(o) + '" title="Снять">' + esc(o) + ICON.x + '</button>').join('') || '<span class="hint">Никто не выдаёт</span>';
+    $('#bOffWrap').hidden = !off.length;
+    $('#bOff').innerHTML = off.map(o => '<button type="button" data-o="' + esc(o) + '" title="Добавить">' + ICON.plus + esc(o) + '</button>').join('');
+    // СМС
+    const len = B.sms.length, hasLink = B.sms.includes('{link}');
+    $('#bSmsHint').textContent = len + ' ' + plural(len, 'знак', 'знака', 'знаков') + (hasLink ? '' : ' · в тексте нет {link}, гость не получит ссылку');
+    $('#bSmsHint').style.color = hasLink ? '' : 'var(--colorError)';
+    $('#bActiveHint').textContent = B.active ? 'Шаблон есть в форме выдачи на отмеченных объектах.' : 'По шаблону не выдают новые книги.';
+    // предпросмотр
+    $$('#bTab button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === B.tab)));
+    const picked = B.picked.map(byId), counts = picked.map(c => forFamily(c, 2, 1)), total = counts.reduce((a, b) => a + b, 0);
+    if (B.tab === 'sms') {
+      $('#bView').innerHTML = '<div class="sms-view"><div class="from">Krasnaya Polyana · сегодня, 14:05</div><div class="bubble">' + esc(B.sms).replace('{link}', '<a>kpresort.ru/b/7QX3K</a>') + '</div></div>';
+      $('#bNote').textContent = hasLink ? 'Ссылка открывает книгу гостя без входа и пароля.' : 'Добавьте {link}, иначе гость не получит ссылку на книгу.';
+    } else {
+      const cats = Array.from(new Set(picked.map(c => c.cat)));
+      $('#bView').innerHTML = '<div class="g-hero"><div class="cv">' + (B.cover ? '<img src="' + asset(B.cover) + '" alt="">' : '<span>Нет обложки</span>') + '</div><div class="bd"><h3>' + esc(B.name.trim() || 'Название книги') + '</h3><p class="facts"><b>2 взрослых, 1 ребёнок</b> · действует до 26 октября</p><span class="tag green">Ещё 4 дня</span>' + (B.desc.trim() ? '<p class="desc">' + esc(B.desc) + '</p>' : '') + '</div></div>' +
+        (cats.length > 1 ? '<div class="g-chips"><span class="on">Все</span>' + cats.map(c => '<span>' + esc(c) + '</span>').join('') + '</div>' : '') +
+        picked.map((c, i) => counts[i] ? guestCard(c, counts[i]) : '').join('') + (picked.length ? '' : '<div class="empty">В книге пока нет купонов</div>');
+      const cards = counts.filter(Boolean).length;
+      $('#bNote').textContent = total ? 'Эта семья получит ' + coupons(total) + ' в ' + cards + ' ' + plural(cards, 'карточке', 'карточках', 'карточках') + '.' : 'Эта семья не получит ни одного купона.';
+    }
+    typo($('#pg-book'));
   }
 
   route();

@@ -413,6 +413,7 @@ body[data-device="phone"] .modal { width: min(343px, 100%); }
   function nb(t) {
     return t.replace(reShort, '$1$2' + NB).replace(reShort, '$1$2' + NB)
       .replace(/(\d)[ ]+(?=[а-яёА-ЯЁ])/g, '$1' + NB)
+      .replace(/(\d)[ ]+(?=[₽%])/g, '$1' + NB)
       .replace(/(\d)[ ]+(?=\d{3}(?!\d))/g, '$1' + NB)
       .replace(/(Полян[а-яё]+)[ ]+(?=\d)/g, '$1' + NB)
       .replace(/[ ]+([—–·])/g, NB + '$1');
