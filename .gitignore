@@ -1,24 +1,3 @@
-# копии для публикации — те же файлы, что coupon-book-*.html
-publish/
-publish-admin/
-
-# рабочие копии и архивы
-*-backup.html
-wireframe-preview.html
-wireframe-v4-archive.html
-figma-build-book.js
-
-# скриншоты из Figma и с сайта: большие, в них есть данные из макетов
-reference/
-
 # локальные настройки
 .claude/
 .DS_Store
-
-# старые вырезки из скриншотов, в прототипе больше не используются
-img/birthday.jpg
-img/hiking.jpg
-img/mountains.jpg
-img/novotel.jpg
-img/sunset.jpg
-img/logo.png

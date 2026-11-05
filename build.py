@@ -3,8 +3,8 @@
 
     python3 build.py
 
-Книга гостя:  prototype.html -> coupon-book-prototype.html, publish/index.html
-Админка:      admin.html     -> coupon-book-admin.html,     publish-admin/index.html
+Книга гостя:  prototype.html -> coupon-book-prototype.html
+Админка:      admin.html     -> coupon-book-admin.html
 
 Админка берёт шрифты, токены KP UI, типограф и рисунок QR из prototype.html
 (метки /*FONTS*/, /*TOKENS*/, /*TYPOJS*/, /*QRJS*/), чтобы два прототипа не расходились.
@@ -58,14 +58,13 @@ def embed(src, outputs):
     out = SKELETON + src + '\n</body></html>\n'
     for name in outputs:
         path = os.path.join(ROOT, name)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(out)
     print(outputs[0], len(out.encode('utf-8')), 'bytes;', len(photos), 'photos')
 
 
 proto = read('prototype.html')
-embed(proto, ['coupon-book-prototype.html', os.path.join('publish', 'index.html')])
+embed(proto, ['coupon-book-prototype.html'])
 
 admin = read('admin.html')
 parts = {
@@ -78,4 +77,4 @@ for mark, text in parts.items():
     assert admin.count(mark) == 1, mark
     assert text.strip(), mark
     admin = admin.replace(mark, text)
-embed(admin, ['coupon-book-admin.html', os.path.join('publish-admin', 'index.html')])
+embed(admin, ['coupon-book-admin.html'])
