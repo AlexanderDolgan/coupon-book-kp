@@ -150,8 +150,9 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 .tag.orange { background: var(--tagOrangeBg); color: var(--tagOrange); }
 .tag.grey { background: var(--colorBgLayout); color: var(--colorTextSecondary); }
 .empty { padding: var(--spaceXL) var(--spaceLG); text-align: center; color: var(--colorTextTertiary); }
-.pager { display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; padding: var(--space) var(--spaceLG); border-top: 1px solid var(--colorBgLayout); color: var(--colorTextSecondary); }
-.pager .pages { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* пагинация стоит по центру подвала, счётчик строк — слева от неё */
+.pager { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space); padding: var(--space) var(--spaceLG); border-top: 1px solid var(--colorBgLayout); color: var(--colorTextSecondary); }
+.pager .pages { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .pager button, .pager .gap { min-width: 40px; height: 40px; padding: 0 12px; border-radius: 999px; border: 0; background: transparent; color: var(--colorText); display: inline-grid; place-items: center; }
 .pager button:hover { background: var(--colorBgContainerSecondary); }
 .pager button[aria-current="page"] { background: var(--chipBgActive); color: var(--chipTextActive); }
@@ -273,8 +274,8 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 .pick .tx b { font-size: 16px; line-height: 24px; font-weight: 500; }
 .pick .tx span { color: var(--colorTextSecondary); }
 .pick .tx .warn { color: #ad6800; }
-.inline-pager { display: flex; align-items: center; justify-content: space-between; gap: var(--space); flex-wrap: wrap; color: var(--colorTextSecondary); }
-.inline-pager .pages { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inline-pager { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space); color: var(--colorTextSecondary); }
+.inline-pager .pages { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .inline-pager button, .inline-pager .gap { min-width: 40px; height: 40px; padding: 0 12px; border-radius: 999px; border: 0; background: transparent; color: var(--colorText); display: inline-grid; place-items: center; }
 .inline-pager button:hover { background: var(--colorBgContainerSecondary); }
 .inline-pager button[aria-current="page"] { background: var(--chipBgActive); color: var(--chipTextActive); }
@@ -323,6 +324,8 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 
 /* ---------- узкие экраны ---------- */
 @media (max-width: 1280px) {
+  .pager, .inline-pager { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .pager .pages, .inline-pager .pages { grid-column: 1; }
   .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .filters .search { grid-column: 1 / -1; }
   .form { grid-template-columns: minmax(0, 1fr); }
