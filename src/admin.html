@@ -554,7 +554,10 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
     { title: 'Шаблоны', items: [['Ски-пассы', '<path d="M4 7h16M7 7l1 4h8l1-4M8 11v6a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6"/>'], ['Шаблоны книг', '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M10 4v7l2-1.5 2 1.5V4"/>', 'book'], ['Шаблоны купонов', '<circle cx="12" cy="12" r="8"/><path d="m9 15 6-6M9.5 9.5h.01M14.5 14.5h.01" stroke-width="2"/>', 'template']] },
     { title: 'Управление', items: [['Объекты', '<path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6"/>'], ['Тарифы', '<path d="M9 20V5h4.5a3.5 3.5 0 0 1 0 7H7M7 16h7"/>'], ['Пользователи', '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5A6 6 0 0 1 21 19"/>'], ['Журнал действий', '<path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5M12 8v4l3 2"/>'], ['Журнал событий', '<path d="M6 4h9l3 3v13H6zM9 11h6M9 15h6"/>']] },
   ];
-  $('#nav').innerHTML = NAV.map(g => '<div class="grp">' + (g.title ? '<div class="ttl">' + g.title + '</div>' : '') + g.items.map(([t, d, id]) => '<a href="#' + (id || '') + '"' + (id ? ' data-page="' + id + '"' : ' data-stub') + '>' + svg(d) + '<span>' + t + '</span></a>').join('') + '</div>').join('');
+  // сборка делает из админки три файла: у каждого свой экран (__PAGE), меню ведёт в соседние файлы (__FILES)
+  const FILES = window.__FILES || null;
+  const linkTo = id => FILES ? FILES[id] : '#' + id;
+  $('#nav').innerHTML = NAV.map(g => '<div class="grp">' + (g.title ? '<div class="ttl">' + g.title + '</div>' : '') + g.items.map(([t, d, id]) => '<a href="' + (id ? linkTo(id) : '#') + '"' + (id ? ' data-page="' + id + '"' : ' data-stub') + '>' + svg(d) + '<span>' + t + '</span></a>').join('') + '</div>').join('');
   $('#nav').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; delete document.body.dataset.nav; if (a.hasAttribute('data-stub')) { e.preventDefault(); snack('Этот раздел в прототипе не собран', 'info'); } });
   $('#burger').addEventListener('click', () => { document.body.dataset.nav = 'open'; });
   document.addEventListener('click', e => { if (document.body.dataset.nav === 'open' && !e.target.closest('#side') && !e.target.closest('#burger')) delete document.body.dataset.nav; });
@@ -563,17 +566,18 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
   let page = 'issued';
   function route(next) {
     const h = typeof next === 'string' ? next : location.hash.replace('#', '');
-    page = PAGES.includes(h) ? h : 'issued';
+    page = window.__PAGE || (PAGES.includes(h) ? h : 'issued');
     PAGES.forEach(pg => { $('#pg-' + pg).hidden = pg !== page; });
     $$('#nav a[data-page]').forEach(a => { if (a.dataset.page === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (page === 'template') renderTemplate(); else if (page === 'book') renderBook(); else renderIssued();
     window.scrollTo(0, 0);
   }
-  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (PAGES.includes(h) && h !== page) route(h); });
+  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (!window.__PAGE && PAGES.includes(h) && h !== page) route(h); });
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="#"]'), h = a && a.getAttribute('href').slice(1);
     if (!h || !PAGES.includes(h)) return;
     e.preventDefault(); delete document.body.dataset.nav;
+    if (FILES) { if (h !== page) location.href = FILES[h]; return; }
     try { history.replaceState(null, '', '#' + h); } catch (err) {}
     route(h);
   });
