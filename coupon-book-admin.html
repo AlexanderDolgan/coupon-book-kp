@@ -669,14 +669,25 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
   $('#nav').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; delete document.body.dataset.nav; if (a.hasAttribute('data-stub')) { e.preventDefault(); snack('Этот раздел в прототипе не собран', 'info'); } });
   $('#burger').addEventListener('click', () => { document.body.dataset.nav = 'open'; });
   document.addEventListener('click', e => { if (document.body.dataset.nav === 'open' && !e.target.closest('#side') && !e.target.closest('#burger')) delete document.body.dataset.nav; });
-  function route() {
-    const h = location.hash.replace('#', ''), page = h === 'template' || h === 'book' ? h : 'issued';
-    ['issued', 'template', 'book'].forEach(pg => { $('#pg-' + pg).hidden = pg !== page; });
+  // экраны переключаются напрямую по клику; адресная строка обновляется, если окно просмотра это позволяет
+  const PAGES = ['issued', 'template', 'book'];
+  let page = 'issued';
+  function route(next) {
+    const h = typeof next === 'string' ? next : location.hash.replace('#', '');
+    page = PAGES.includes(h) ? h : 'issued';
+    PAGES.forEach(pg => { $('#pg-' + pg).hidden = pg !== page; });
     $$('#nav a[data-page]').forEach(a => { if (a.dataset.page === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (page === 'template') renderTemplate(); else if (page === 'book') renderBook(); else renderIssued();
     window.scrollTo(0, 0);
   }
-  window.addEventListener('hashchange', route);
+  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (PAGES.includes(h) && h !== page) route(h); });
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]'), h = a && a.getAttribute('href').slice(1);
+    if (!h || !PAGES.includes(h)) return;
+    e.preventDefault(); delete document.body.dataset.nav;
+    try { history.replaceState(null, '', '#' + h); } catch (err) {}
+    route(h);
+  });
 
   // ---------- «Выданные купоны» ----------
   const ST = {
