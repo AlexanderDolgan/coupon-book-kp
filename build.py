@@ -65,9 +65,9 @@ def embed(src, output, photos=None, head=''):
     # таблица «путь → data URI», её читает asset() на странице
     assets = '{' + ','.join('"' + p + '":"' + data_uri(p) + '"' for p in photos) + '}'
     src = src.replace(QR_TAG, '<script>' + lib + '</script>\n<script>window.__ASSETS=' + assets + ';' + head + '</script>')
-    logo = 'src="img/logo.svg"'
+    logo = 'src="img/book-logo.svg"'
     assert logo in src, 'logo not found'
-    src = src.replace(logo, 'src="' + data_uri('img/logo.svg') + '"')
+    src = src.replace(logo, 'src="' + data_uri('img/book-logo.svg') + '"')
     # проверка: не осталось ни файлов рядом, ни подгрузки с других адресов
     left = re.findall(r'''(?:src|href)="(?!data:|#|tel:|mailto:|')[^"]*"''', src)   # ' — значение собирает скрипт
     assert not left, left

@@ -21,8 +21,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .app { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--spaceLG); max-width: 1760px; margin: 0 auto; padding-block: var(--space) var(--spaceXL); align-items: start; }
 .side { position: sticky; top: var(--space); max-height: calc(100dvh - 32px); overflow-y: auto; scrollbar-width: thin; background: var(--colorBgContainer); border-radius: var(--radiusXL); padding: var(--spaceLG) var(--space) var(--space); display: grid; gap: var(--spaceLG); }
 .side .brand { display: grid; gap: 8px; padding: 0 12px; }
-.side .brand img { height: 36px; width: auto; }
-.side .brand span { font-size: 14px; line-height: 22px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; color: var(--colorPrimary); }
+.side .brand img { height: 35px; width: auto; justify-self: start; }
 .nav { display: grid; gap: var(--space); }
 .nav .grp { display: grid; gap: 2px; }
 .nav .ttl { font-size: 14px; line-height: 22px; font-weight: 500; color: var(--colorTextTertiary); padding: 0 12px 4px; }
@@ -303,14 +302,14 @@ td.code .icon-btn { vertical-align: middle; margin-block: -5px; }
 
 <div class="app">
   <aside class="side" id="side">
-    <div class="brand"><img src="img/logo.svg" alt="Красная Поляна · курорт" width="156" height="48"><span>Купонная книга</span></div>
+    <div class="brand"><img src="img/book-logo.svg" alt="Купонная книга курорта «Красная Поляна»" width="158" height="35"></div>
     <nav class="nav" id="nav" aria-label="Разделы"></nav>
     <div class="account"><div class="ava">С</div><div class="who"><b>Саша</b><span>sasha</span></div></div>
   </aside>
 
   <div class="main">
     <div class="topbar">
-      <img src="img/logo.svg" alt="Красная Поляна · курорт" width="156" height="48">
+      <img src="img/book-logo.svg" alt="Купонная книга курорта «Красная Поляна»" width="158" height="35">
       <button class="btn" type="button" id="burger" aria-controls="side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Меню</button>
     </div>
 
