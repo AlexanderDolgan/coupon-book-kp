@@ -75,7 +75,11 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .page > * { min-width: 0; }
 
 /* ---------- header ---------- */
-.hdr { background: var(--colorBgContainer); border-radius: var(--radiusXL); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--pad); }
+/* шапка прилипает; наверху страницы она без заливки, заливка и тень появляются, пока шапка прилипла (.stuck ставит скрипт) */
+.hdr { position: sticky; top: calc(var(--space) + env(safe-area-inset-top, 0px)); z-index: 5; background: transparent; border-radius: var(--radiusXL); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--pad);
+  transition: background-color .2s, box-shadow .2s; }
+.hdr.stuck { background: var(--colorBgContainer); box-shadow: var(--boxShadow); }
+@media (prefers-reduced-motion: reduce) { .hdr { transition: none; } }
 .hdr img { height: 35px; width: auto; flex: none; }
 
 /* ---------- hero ---------- */
@@ -109,7 +113,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .alert a { font-weight: 500; white-space: nowrap; text-decoration: none; color: var(--colorPrimary); }
 
 /* ---------- controls: switch + chips ---------- */
-.controls { display: grid; gap: var(--gapCard); }
+.controls { display: grid; gap: var(--gapSection); }
 .list-head { display: flex; align-items: center; gap: 12px; }
 .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; line-height: 22px; color: var(--colorTextTertiary); cursor: pointer; user-select: none; }
 .switch input { appearance: none; width: 44px; height: 22px; border-radius: 999px; background: var(--colorTextQuaternary); position: relative; margin: 0; cursor: pointer; transition: background .15s; flex: none; }
@@ -235,7 +239,6 @@ body[data-device="phone"] .frame { max-width: 343px; }
 @container frame (min-width: 736px) {
   .page { --pad: 24px; --gapCard: 24px; }
   .hdr { padding: 14px var(--pad); }
-  .hdr img { height: 44px; }
   .hero { grid-template-columns: minmax(0, 448fr) minmax(0, 496fr); }
   .hero .body { padding: var(--spaceLG); }
   .hero h1 { font-size: 30px; line-height: 36px; }
@@ -572,4 +575,14 @@ body[data-device="phone"] .modal { width: min(343px, 100%); }
   $$('[data-dev]').forEach(b => b.addEventListener('click', () => { if (b.dataset.dev === 'phone') document.body.dataset.device = 'phone'; else delete document.body.dataset.device; $$('[data-dev]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); render(); }));
   $$('[data-scn]').forEach(b => b.addEventListener('click', () => { scn = b.dataset.scn; cat = 'all'; $$('[data-scn]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); $('#zoom').hidden = true; render(); }));
   render();
+
+  // шапка: заливка только пока она прилипла к верху окна
+  const hdr = $('.hdr');
+  function stick() {
+    const top = parseFloat(getComputedStyle(hdr).top) || 0;
+    hdr.classList.toggle('stuck', window.scrollY > 0 && hdr.getBoundingClientRect().top <= top + .5);
+  }
+  window.addEventListener('scroll', stick, { passive: true });
+  window.addEventListener('resize', stick);
+  stick();
 </script>
