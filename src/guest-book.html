@@ -71,15 +71,17 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .demo .seg button[aria-pressed="true"] { background: var(--colorText); color: var(--colorBgContainer); }
 
 /* ---------- page: блоки-карточки на сером фоне, контейнер 960 ---------- */
-.page { max-width: 960px; margin: 0 auto; padding-block: var(--space) var(--spaceXL); display: grid; gap: var(--gapSection); }
+.page { max-width: 960px; margin: 0 auto; padding-block: 0 var(--spaceXL); display: grid; gap: var(--gapSection); }
 .page > * { min-width: 0; }
 
 /* ---------- header ---------- */
-/* шапка прилипает; наверху страницы она без заливки, заливка и тень появляются, пока шапка прилипла (.stuck ставит скрипт) */
-.hdr { position: sticky; top: calc(var(--space) + env(safe-area-inset-top, 0px)); z-index: 5; background: transparent; border-radius: var(--radiusXL); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--pad);
-  transition: background-color .2s, box-shadow .2s; }
-.hdr.stuck { background: var(--colorBgContainer); box-shadow: var(--boxShadow); }
-@media (prefers-reduced-motion: reduce) { .hdr { transition: none; } }
+/* шапка прилипает к самому верху окна, без отступа. Наверху страницы она без заливки; пока прилипла (.stuck ставит скрипт),
+   заливается фоном во всю ширину окна: это полоса, а не плашка поверх содержимого. Логотип и кнопка стоят по краям колонки. */
+.hdr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 11; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+.hdr::before { content: ""; position: absolute; z-index: -1; top: calc(env(safe-area-inset-top, 0px) * -1); bottom: 0; left: calc(50% - 50vw); right: calc(50% - 50vw);
+  background: var(--colorBgContainer); box-shadow: 0 2px 8px #0000000f; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.hdr.stuck::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .hdr::before { transition: none; } }
 .hdr img { height: 35px; width: auto; flex: none; }
 
 /* ---------- hero ---------- */
@@ -238,7 +240,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 body[data-device="phone"] .frame { max-width: 343px; }
 @container frame (min-width: 736px) {
   .page { --pad: 24px; --gapCard: 24px; }
-  .hdr { padding: 14px var(--pad); }
+  .hdr { padding: 14px 0; }
   .hero { grid-template-columns: minmax(0, 448fr) minmax(0, 496fr); }
   .hero .body { padding: var(--spaceLG); }
   .hero h1 { font-size: 30px; line-height: 36px; }
@@ -576,7 +578,7 @@ body[data-device="phone"] .modal { width: min(343px, 100%); }
   $$('[data-scn]').forEach(b => b.addEventListener('click', () => { scn = b.dataset.scn; cat = 'all'; $$('[data-scn]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); $('#zoom').hidden = true; render(); }));
   render();
 
-  // шапка: заливка только пока она прилипла к верху окна
+  // шапка: полоса заливки во всю ширину видна, только пока шапка прилипла к верху окна
   const hdr = $('.hdr');
   function stick() {
     const top = parseFloat(getComputedStyle(hdr).top) || 0;
